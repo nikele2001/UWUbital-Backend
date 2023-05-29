@@ -1,0 +1,7 @@
+Key things to note:
+1. backend is hosted at https://us-central1-purple-dog-orbital-backend.cloudfunctions.net/app
+2. Backend is hosted within the functions folder. To edit server instance, edit files within functions.
+3. .env files does not work within functions. Thus, all environment variables are replaced with their absolute values in their respective files.
+4. To test deployment, run 'firebase serve'.
+5. To deploy, run 'firebase serve'.
+6. For some reason, after implementing firebase, when I branch from main, there is this functions folder containing all the nodes_modules. DO NOT DELETE
