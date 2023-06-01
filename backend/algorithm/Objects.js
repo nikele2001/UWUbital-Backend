@@ -195,7 +195,7 @@ class Task {
     static calculateTotalWorkload(taskArray) {
         let out = 0;
         for (let task of taskArray) {
-            out += task.getTimeNeeded();
+            out += task.getTimeNeeded() * task.pax;
         }
         return out;
     }
