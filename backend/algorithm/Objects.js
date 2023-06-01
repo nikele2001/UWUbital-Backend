@@ -192,10 +192,13 @@ class Task {
         const outInterval = this.interval.toISO({suppressSeconds: true});
         return new TaskJSONable(this.name, this.pax, outInterval);
     }
+    calculateWorkload() {
+        return this.getTimeNeeded() * this.pax;
+    }
     static calculateTotalWorkload(taskArray) {
         let out = 0;
         for (let task of taskArray) {
-            out += task.getTimeNeeded() * task.pax;
+            out += task.calculateWorkload();
         }
         return out;
     }
