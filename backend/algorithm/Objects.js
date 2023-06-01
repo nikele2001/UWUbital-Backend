@@ -20,6 +20,9 @@ export class Project {
         }
         return new ProjectJSONable(peopleCopy, taskCopy);
     }
+    equals(other) {
+        return Person.equalsArray(this.people, other.people) && Task.equalsArray(this.tasks, other.tasks);
+    }
 }
 
 export class ProjectJSONable {
@@ -53,7 +56,6 @@ export class Person {
         this.avails = avails;
         this.tasks = tasks;
     }
-
     toString() {
         var out = "Name: " + this.name + "\n";
         out += "Availabilities: ";
@@ -66,7 +68,6 @@ export class Person {
         }
         return out;
     }
-
     toJSONable() {
         const outAvails = [];
         for (let i = 0; i < this.avails.length; i++) {
@@ -78,15 +79,16 @@ export class Person {
         }
         return new PersonJSONable(this.name, outAvails, outTasks);
     }
-
     canTakeTask(task) {
         let out = true;
         for (let avail of this.avails) {
             out = avail.engulfs(task.interval) || out;
         }
+        for (let other of this.tasks) {
+            out = !other.overlaps(task) && out; 
+        }
         return out;
     }
-
     takeNewTask(task) {
         this.tasks = [...this.tasks, task];
     }
@@ -99,6 +101,33 @@ export class Person {
             out += person.getWorkload();
         }
         return out;
+    }
+    hash() {
+        return hash(this.toString());
+    }
+    equals(other) {
+        const availCopy = Array.from(this.avails);
+        const otherAvails = Array.from(other.avails);
+        let availIsEqual = availCopy.length === otherAvails.length;
+        availCopy.sort((a, b) => a.toString() < b.toString());
+        otherAvails.sort((a, b) => a.toString() < b.toString());
+        for (let i = 0; i < availCopy.length; i++) {
+            availIsEqual = availIsEqual && availCopy[i].equals(otherAvails[i]);
+        }
+        return this.name === other.name 
+            && availIsEqual 
+            && Task.equalsArray(this.tasks, other.tasks);
+    }
+    static equalsArray(one, two) {
+        const oneCopy = Array.from(one);
+        const twoCopy = Array.from(two);
+        let isEqual = one.length === two.length;
+        oneCopy.sort((a, b) => a.hash() < b.hash());
+        twoCopy.sort((a, b) => a.hash() < b.hash());
+        for (let i = 0; i < oneCopy.length; i++) {
+            isEqual = isEqual && oneCopy[i].equals(twoCopy[i]);
+        }
+        return isEqual;
     }
 }
 
@@ -173,6 +202,20 @@ export class Task {
     }
     equals(task) {
         return this.name === task.name && this.pax === task.pax && this.interval.equals(task.interval);
+    }
+    hash() {
+        return hash(this.toString());
+    }
+    static equalsArray(one, two) {
+        const oneCopy = Array.from(one);
+        const twoCopy = Array.from(two);
+        let isEqual = one.length === two.length;
+        oneCopy.sort((a, b) => a.hash() < b.hash());
+        twoCopy.sort((a, b) => a.hash() < b.hash());
+        for (let i = 0; i < oneCopy.length; i++) {
+            isEqual = isEqual && oneCopy[i].equals(twoCopy[i]);
+        }
+        return isEqual;
     }
 }
 

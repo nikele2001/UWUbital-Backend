@@ -22,6 +22,9 @@ export default function test(projJSON, algo) {
         + originalWorkload
         + " . Output total: " + algoedWorkload + "\n");
     }
+    if (!original.equals(algoed)) {
+        console.log("Project mutated.");
+    }
 
     console.log("Checking for distribution... \n");
     

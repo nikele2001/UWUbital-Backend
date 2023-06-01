@@ -44,7 +44,8 @@ export default function runGreedyAlgorithm(project) {
 
     // step 3
     const pArray = people.map(person => {
-        return {"person": person, "workload": person.getTotalWorkload(), newTasks: []};
+        // need to add list of unavailable intervals
+        return {"person": person, "workload": person.getTotalWorkload()};
     });
     const pQueue = new PriorityQueue({comparator: function (a, b) {
         return b.workload - a.workload;
@@ -64,7 +65,7 @@ export default function runGreedyAlgorithm(project) {
             if (lowest.person.canTakeTask(task) 
                 && lowest.workload <= meanWorkload
                 && lowest.workload + task.getTimeNeeded() <= upperLimit) {
-                lowest.newTasks.push(task);
+                lowest.person.takeNewTask(task);
                 unassigned = false;
                 lowest.workload += task.getTimeNeeded();
                 pQueue.queue(lowest);
@@ -84,16 +85,13 @@ export default function runGreedyAlgorithm(project) {
     dumpsterList.sort((a, b) => a.getTimeNeeded() - b.getTimeNeeded());
     for (const task of dumpsterList) {
         const lowest = pQueue.dequeue();
-        lowest.newTasks.push(task);
+        lowest.person.takeNewTask(task);
         lowest.workload += task.getTimeNeeded();
         pQueue.queue(lowest);
     }
 
     // reassign tasks and return
     const out = new Project([], []);
-    out.people = pArray.map(p => {
-        p.person.tasks = [...p.person.tasks, ...p.newTasks];
-        return p.person;
-    })
+    out.people = pArray.map(p => p.person);
     return out;
 }
