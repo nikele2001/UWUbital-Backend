@@ -171,6 +171,9 @@ export class Task {
         }
         return out;
     }
+    equals(task) {
+        return this.name === task.name && this.pax === task.pax && this.interval.equals(task.interval);
+    }
 }
 
 export class TaskJSONable {
