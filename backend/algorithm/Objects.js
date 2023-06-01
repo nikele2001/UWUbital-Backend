@@ -170,7 +170,6 @@ export class Task {
     // name is a String
     // pax is an integer
     // timeframe is an Interval object
-    // timeNeeded is a number
     constructor(name, pax, interval) {
         this.name = name;
         this.pax = pax;
@@ -216,6 +215,13 @@ export class Task {
             isEqual = isEqual && oneCopy[i].equals(twoCopy[i]);
         }
         return isEqual;
+    }
+    toIndivTasks() {
+        const out = [];
+        for (let i = 0; i < this.pax; i++) {
+            out.push(new Task(this.name, 1, this.interval));
+        }
+        return out;
     }
 }
 

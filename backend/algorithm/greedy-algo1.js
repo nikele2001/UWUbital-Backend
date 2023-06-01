@@ -21,6 +21,11 @@ export default function runGreedyAlgorithm(project) {
     */
     let people = project.people;
     let tasks = project.tasks;
+    let indivTasks = [];
+    for (const task of tasks) {
+        indivTasks = [...indivTasks, ...task.toIndivTasks];
+    }
+    tasks = indivTasks;
 
     // define constants
     const totalWorkload = Person.getTotalWorkload(people) + Task.getTotalWorkload(tasks);
