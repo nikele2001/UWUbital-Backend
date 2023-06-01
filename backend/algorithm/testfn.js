@@ -1,10 +1,13 @@
-import { ProjectJSONable, Project, Person, Task } from "./Objects";
-import math from 'mathjs';
+// import { ProjectJSONable, Project, Person, Task } from "./Objects";
+// import math from 'mathjs';
+const Objects = require('./Objects');
+const math = require('mathjs');
 
 // function to run on a project to test if it works, and how efficient it is.
-export default function test(projJSON, algo) {
-    const original = ProjectJSONable.fromJSONable(projJSON);
-    const algoed = algo(ProjectJSONable.fromJSONable(projJSON));
+function test(projJSON, algo) {
+    console.log("Running test...");
+    const original = Objects.ProjectJSONable.fromJSONable(projJSON);
+    const algoed = algo(Objects.ProjectJSONable.fromJSONable(projJSON));
 
     console.log("Checking for validity... \n");
     if (original.people.length !== algoed.people.length) {
@@ -15,8 +18,8 @@ export default function test(projJSON, algo) {
     if (algoed.task.length > 0) {
         console.log("Length of output task list is not 0. \n");
     } 
-    const originalWorkload = Person.getTotalWorkload(original.people) + Task.getTotalWorkload(original.tasks);
-    const algoedWorkload = Person.getTotalWorkload(algoed.people) + Task.getTotalWorkload(algoed.tasks);
+    const originalWorkload = Objects.Person.getTotalWorkload(original.people) + Objects.Task.getTotalWorkload(original.tasks);
+    const algoedWorkload = Objects.Person.getTotalWorkload(algoed.people) + Objects.Task.getTotalWorkload(algoed.tasks);
     if ( originalWorkload != algoedWorkload) {
         console.log("Total workload different: Original total: " 
         + originalWorkload

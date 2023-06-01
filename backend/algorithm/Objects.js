@@ -1,6 +1,6 @@
-import { DateTime, Interval } from "luxon";
+require('luxon');
 
-export class Project {
+class Project {
     constructor(people, tasks) {
         this.people = people;
         this.tasks = tasks;
@@ -25,7 +25,7 @@ export class Project {
     }
 }
 
-export class ProjectJSONable {
+class ProjectJSONable {
     constructor(people, tasks) {
         this.people = people;
         this.tasks = tasks;
@@ -48,7 +48,7 @@ export class ProjectJSONable {
     }
 }
 
-export class Person {
+class Person {
     // name is a string
     // avail is an array of Interval objects from the Luxon library
     constructor(name, avails, tasks) {
@@ -60,7 +60,7 @@ export class Person {
         var out = "Name: " + this.name + "\n";
         out += "Availabilities: ";
         for (var avail of this.avails) {
-            out += avail.toLocaleString(DateTime.DATETIME_MED) + "\n";
+            out += avail.toLocaleString(luxon.DateTime.DATETIME_MED) + "\n";
         }
         out += "Tasks: ";
         for (var task of this.tasks) {
@@ -131,7 +131,7 @@ export class Person {
     }
 }
 
-export class PersonJSONable {
+class PersonJSONable {
     // name is a string
     // avail is an array of ISO strings
     constructor(name, avails, tasks) {
@@ -156,7 +156,7 @@ export class PersonJSONable {
     static fromJSONable(object) {
         const outAvails = [];
         for (let i = 0; i < object.avails.length; i++) {
-            outAvails[i] = Interval.fromISO(object.avails[i]);
+            outAvails[i] = luxon.Interval.fromISO(object.avails[i]);
         }
         const outTasks = [];
         for (let i = 0; i < object.tasks.length; i++) {
@@ -166,7 +166,7 @@ export class PersonJSONable {
     }
 }
 
-export class Task {
+class Task {
     // name is a String
     // pax is an integer
     // timeframe is an Interval object
@@ -176,7 +176,7 @@ export class Task {
         this.interval = interval;
     }
     getInterval() {
-        return this.interval.toLocaleString(DateTime.DATETIME_MED);
+        return this.interval.toLocaleString(luxon.DateTime.DATETIME_MED);
     }
     getTimeNeeded() {
         return Math.round(this.interval.toDuration("hours").toObject().hours);
@@ -184,7 +184,7 @@ export class Task {
     toString() {
         var out = "Task: " + this.name + "\n";
         out += "People required: " + this.pax + "\n";
-        out += "Interval: " + this.interval.toLocaleString(DateTime.DATETIME_MED) + "\n";
+        out += "Interval: " + this.interval.toLocaleString(luxon.DateTime.DATETIME_MED) + "\n";
         out += "Time needed: " + this.getTimeNeeded() + "\n";
         return out;
     }
@@ -225,7 +225,7 @@ export class Task {
     }
 }
 
-export class TaskJSONable {
+class TaskJSONable {
     // name is a String
     // pax is an integer
     // timeframe is an ISO string
@@ -243,7 +243,7 @@ export class TaskJSONable {
     }
 
     static fromJSONable(object) {
-        const outInterval = Interval.fromISO(object.interval);
+        const outInterval = luxon.Interval.fromISO(object.interval);
         return new Task(object.name, object.pax, outInterval);
     }
 }

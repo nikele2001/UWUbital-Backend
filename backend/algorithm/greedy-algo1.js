@@ -1,7 +1,7 @@
-import {Person, Task, Project} from 'Objects';
-import {PriorityQueue} from 'js-priority-queue';
+const {Person, Task, Project} = require('./Objects');
+const {PriorityQueue} = require('js-priority-queue');
 
-export default function runGreedyAlgorithm(project) {
+function runGreedyAlgorithm(project) {
     /*
     WARNING: this function mutates the project passed in as argument.
 
