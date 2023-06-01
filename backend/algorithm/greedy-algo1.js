@@ -1,5 +1,9 @@
 const {Person, Task, Project} = require('./Objects');
-const {PriorityQueue} = require('js-priority-queue');
+const {
+    PriorityQueue,
+    MinPriorityQueue,
+    MaxPriorityQueue,
+  } = require('@datastructures-js/priority-queue');
 
 function runGreedyAlgorithm(project) {
     /*
@@ -23,7 +27,7 @@ function runGreedyAlgorithm(project) {
     let tasks = project.tasks;
     let indivTasks = [];
     for (const task of tasks) {
-        indivTasks = [...indivTasks, ...task.toIndivTasks];
+        indivTasks = [...indivTasks, ...task.toIndivTasks()];
     }
     tasks = indivTasks;
 
@@ -34,7 +38,7 @@ function runGreedyAlgorithm(project) {
 
     // step 1
     const taskQueue = [];
-    for (const task of taskQueue) {
+    for (const task of tasks) {
         let canDo = 0;
         for (const person of people) {
             if (person.canTakeTask(task)) {
@@ -48,15 +52,11 @@ function runGreedyAlgorithm(project) {
     taskQueue.sort((a, b) => a.assignees <= b.assignees ? -1 : 1);
 
     // step 3
-    const pArray = people.map(person => {
-        // need to add list of unavailable intervals
-        return {"person": person, "workload": person.getTotalWorkload()};
+    const pQueue = new PriorityQueue((a, b) => {
+        return a.getWorkload() - b.getWorkload();
     });
-    const pQueue = new PriorityQueue({comparator: function (a, b) {
-        return b.workload - a.workload;
-    }});
-    for (const p in pArray) {
-        pQueue.queue(p);
+    for (const p of people) {
+        pQueue.enqueue(p);
     }
 
     // step 4
@@ -65,15 +65,14 @@ function runGreedyAlgorithm(project) {
         const task = t.task;
         const unavailableP = [];
         let unassigned = true;
-        while (unassigned && pQueue.length > 0) {
+        while (unassigned && pQueue.size() > 0) {
             const lowest = pQueue.dequeue();
-            if (lowest.person.canTakeTask(task) 
-                && lowest.workload <= meanWorkload
-                && lowest.workload + task.getTimeNeeded() <= upperLimit) {
-                lowest.person.takeNewTask(task);
+            if (lowest.canTakeTask(task) 
+                && lowest.getWorkload() <= meanWorkload
+                && lowest.getWorkload() + task.getTimeNeeded() <= upperLimit) {
+                lowest.takeNewTask(task);
                 unassigned = false;
-                lowest.workload += task.getTimeNeeded();
-                pQueue.queue(lowest);
+                pQueue.enqueue(lowest);
             } else {
                 unavailableP.push(lowest);
             }
@@ -81,8 +80,8 @@ function runGreedyAlgorithm(project) {
         if (unassigned) {
             dumpsterList.push(task);
         }
-        for (const p in unavailableP) {
-            pQueue.queue(p);
+        for (const p of unavailableP) {
+            pQueue.enqueue(p);
         }
     }
 
@@ -90,13 +89,14 @@ function runGreedyAlgorithm(project) {
     dumpsterList.sort((a, b) => a.getTimeNeeded() - b.getTimeNeeded());
     for (const task of dumpsterList) {
         const lowest = pQueue.dequeue();
-        lowest.person.takeNewTask(task);
-        lowest.workload += task.getTimeNeeded();
-        pQueue.queue(lowest);
+        lowest.takeNewTask(task);
+        pQueue.enqueue(lowest);
     }
 
     // reassign tasks and return
     const out = new Project([], []);
-    out.people = pArray.map(p => p.person);
+    out.people = people;
     return out;
 }
+
+module.exports = runGreedyAlgorithm;

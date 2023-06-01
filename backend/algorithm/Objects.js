@@ -1,4 +1,4 @@
-require('luxon');
+const {DateTime, Interval} = require('luxon');
 
 class Project {
     constructor(people, tasks) {
@@ -60,7 +60,7 @@ class Person {
         var out = "Name: " + this.name + "\n";
         out += "Availabilities: ";
         for (var avail of this.avails) {
-            out += avail.toLocaleString(luxon.DateTime.DATETIME_MED) + "\n";
+            out += avail.toLocaleString(DateTime.DATETIME_MED) + "\n";
         }
         out += "Tasks: ";
         for (var task of this.tasks) {
@@ -85,7 +85,7 @@ class Person {
             out = avail.engulfs(task.interval) || out;
         }
         for (let other of this.tasks) {
-            out = !other.overlaps(task) && out; 
+            out = !other.interval.overlaps(task.interval) && out; 
         }
         return out;
     }
@@ -93,7 +93,7 @@ class Person {
         this.tasks = [...this.tasks, task];
     }
     getWorkload() {
-        return Task.calculateTotalWorkload(this.tasks);
+        return Task.getTotalWorkload(this.tasks);
     }
     static getTotalWorkload(personArray) {
         let out = 0;
@@ -156,7 +156,7 @@ class PersonJSONable {
     static fromJSONable(object) {
         const outAvails = [];
         for (let i = 0; i < object.avails.length; i++) {
-            outAvails[i] = luxon.Interval.fromISO(object.avails[i]);
+            outAvails[i] = Interval.fromISO(object.avails[i]);
         }
         const outTasks = [];
         for (let i = 0; i < object.tasks.length; i++) {
@@ -176,7 +176,7 @@ class Task {
         this.interval = interval;
     }
     getInterval() {
-        return this.interval.toLocaleString(luxon.DateTime.DATETIME_MED);
+        return this.interval.toLocaleString(DateTime.DATETIME_MED);
     }
     getTimeNeeded() {
         return Math.round(this.interval.toDuration("hours").toObject().hours);
@@ -184,7 +184,7 @@ class Task {
     toString() {
         var out = "Task: " + this.name + "\n";
         out += "People required: " + this.pax + "\n";
-        out += "Interval: " + this.interval.toLocaleString(luxon.DateTime.DATETIME_MED) + "\n";
+        out += "Interval: " + this.interval.toLocaleString(DateTime.DATETIME_MED) + "\n";
         out += "Time needed: " + this.getTimeNeeded() + "\n";
         return out;
     }
@@ -192,13 +192,13 @@ class Task {
         const outInterval = this.interval.toISO({suppressSeconds: true});
         return new TaskJSONable(this.name, this.pax, outInterval);
     }
-    calculateWorkload() {
+    getWorkload() {
         return this.getTimeNeeded() * this.pax;
     }
-    static calculateTotalWorkload(taskArray) {
+    static getTotalWorkload(taskArray) {
         let out = 0;
         for (let task of taskArray) {
-            out += task.calculateWorkload();
+            out += task.getWorkload();
         }
         return out;
     }
@@ -246,7 +246,16 @@ class TaskJSONable {
     }
 
     static fromJSONable(object) {
-        const outInterval = luxon.Interval.fromISO(object.interval);
+        const outInterval = Interval.fromISO(object.interval);
         return new Task(object.name, object.pax, outInterval);
     }
+}
+
+module.exports = {
+    Project: Project,
+    ProjectJSONable: ProjectJSONable,
+    Person: Person,
+    Task: Task,
+    PersonJSONable: PersonJSONable,
+    TaskJSONable, TaskJSONable,
 }
