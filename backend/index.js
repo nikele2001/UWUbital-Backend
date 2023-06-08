@@ -6,12 +6,20 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const app = express();
+
+// import database
+const sqldb = require("./util/database");
+
 // import routes
 const loginSignupRoutes = require("./routes/loginsignup");
 const editProjectRoutes = require("./routes/editproject");
 const manageProjectListRoutes = require("./routes/manageprojectlist");
 
-const app = express();
+sqldb
+  .execute("SELECT * FROM people_table")
+  .then((result) => console.log(result))
+  .catch((err) => console.log(err));
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
