@@ -2,33 +2,28 @@ const {DateTime} = require('luxon');
 const {TaskJSONable} = require('./taskJSONable');
 
 class Task {
-    // id is a number
-    // name is a String
-    // pax is an number
-    // interval is an Interval object from the Luxon library
+    // task_id is a number
+    // interval is a Luxon Interval
     // user_id is a number
     // completed is a boolean
     // proj_id is a number
-    // priority is a number
+    // task_priority is a number
+    // group_id is a number
     constructor(
-      id,
-      name,
-      pax,
+      task_id,
       interval,
       user_id,
       completed,
       proj_id,
-      priority,
+      task_priority,
       group_id
     ) {
-      this.id = id;
-      this.name = name;
-      this.pax = pax;
+      this.task_id = task_id;
       this.interval = interval;
       this.user_id = user_id;
       this.completed = completed;
       this.proj_id = proj_id;
-      this.priority = priority;
+      this.task_priority = task_priority;
       this.group_id = group_id;
     }
     getInterval() {
@@ -39,7 +34,6 @@ class Task {
     }
     toString() {
       var out = "Task: " + this.name + "\n";
-      out += "People required: " + this.pax + "\n";
       out += "Interval: " + this.getInterval() + "\n";
       out += "Time needed: " + this.getTimeNeeded() + "\n";
       return out;
@@ -47,28 +41,24 @@ class Task {
     toJSONable() {
       const outInterval = this.interval.toISO({ suppressSeconds: true });
       return new TaskJSONable(
-        this.id,
-        this.name,
-        this.pax,
+        this.task_id,
         outInterval,
         this.user_id,
         this.completed,
         this.proj_id,
-        this.priority,
+        this.task_priority,
         this.group_id
       );
     }
     static fromJSONable(object) {
         const outInterval = Interval.fromISO(object.interval);
         return new Task(
-          this.id,
-          this.name,
-          this.pax,
+          this.task_id,
           outInterval,
           this.user_id,
           this.completed,
           this.proj_id,
-          this.priority,
+          this.task_priority,
           this.group_id
         );
       }

@@ -1,36 +1,30 @@
 class TaskJSONable {
-    // id is a number
-    // name is a String
-    // pax is an number
-    // interval is an ISO string
+    // task_id is a number
+    // interval is an ISO string 
     // user_id is a number
     // completed is a boolean
     // proj_id is a number
-    // priority is a number
+    // task_priority is a number
+    // group_id is a number
     constructor(
-      id,
-      name,
-      pax,
+      task_id,
       interval,
       user_id,
       completed,
       proj_id,
-      priority,
+      task_priority,
       group_id
     ) {
-      this.id = id;
-      this.name = name;
-      this.pax = pax;
+      this.task_id = task_id;
       this.interval = interval;
       this.user_id = user_id;
       this.completed = completed;
       this.proj_id = proj_id;
-      this.priority = priority;
+      this.task_priority = task_priority;
       this.group_id = group_id;
     }
     toString() {
       var out = "JSON Task: " + this.name + "\n";
-      out += "People required: " + this.pax + "\n";
       out += "Interval: " + this.interval + "\n";
       return out;
     }

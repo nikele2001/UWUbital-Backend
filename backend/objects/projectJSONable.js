@@ -2,12 +2,12 @@ class ProjectJSONable {
     // id is a number
     // name is a string
     // people is an array of PersonJSONable objects
-    // tasks is an array of TaskJSONable objects
-    constructor(id, name, people, tasks) {
+    // taskGroups is an array of TaskGroupJSONable objects
+    constructor(id, name, people, taskGroups) {
       this.id = id;
       this.name = name;
       this.people = people;
-      this.tasks = tasks;
+      this.taskGroups = taskGroups;
     }
   
     toString() {
@@ -16,8 +16,8 @@ class ProjectJSONable {
         this.name +
         "\nPeople: " +
         this.people +
-        "\n Tasks: " +
-        this.tasks +
+        "\n taskGroups: " +
+        this.taskGroups +
         "\n"
       );
     }
