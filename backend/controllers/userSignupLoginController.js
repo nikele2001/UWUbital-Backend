@@ -1,9 +1,10 @@
 require("dotenv").config();
+const db = require("../util/database");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
-const Users = require("./../models/Users");
-const Projects = require("../models/Projects");
+const Person = require("./../models/Person");
+// const Projects = require("../models/Projects");
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, {
@@ -20,7 +21,7 @@ const Securitykey = Buffer.from(
 );
 // side note: Everytime encryption/decryption is run, a new cipher object needs to be created.
 
-const signupUser = async (req, res, next) => {
+const signupUser = (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res
@@ -31,26 +32,11 @@ const signupUser = async (req, res, next) => {
   let encryptedPassword =
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
   try {
-    const check = await Users.findOne({ username: username });
-    // add logic to prevent duplicate usernames and invalid password
-    if (check) {
-      console.log("Username taken. Please try another username.");
-      return res.status(403).json({ error: "signup failed: username taken" });
-    } else {
-      console.log("signup success: Please try logging in!");
-      const arr = [];
-      await Projects.create({
-        username: username,
-        projectlist: arr,
-        token: "",
-      });
-      await Users.create({ username: username, password: encryptedPassword });
-      res
-        .status(201)
-        .json({ success: "signup success: Please try logging in!" });
-      // res.redirect("/login");
-    }
-    // console.log(req.body);
+    db.execute(
+      "INSERT INTO people_table (user_name, password_hash) VALUES (?, ?)",
+      [username, encryptedPassword]
+    ).then(() => console.log("signup success"));
+    return res.status(201).json({ success: "success" });
   } catch (err) {
     return res.status(401).json({ error: err });
   }
@@ -67,39 +53,59 @@ const loginUser = async (req, res, next) => {
   let encryptedPassword =
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
   try {
-    Users.findOne({ username: username }).then((check) => {
-      if (!check) {
-        console.log("login failed: Username not found. Please try again.");
-        return res.status(404).json({ error: "username not found" });
-      } else if (check.password !== encryptedPassword) {
-        console.log("login failed: Password incorrect. Please try again.");
-        return res.status(401).json({ error: "password incorrect" });
-      } else {
-        console.log("success!");
-        const token = createToken(check._id.toString());
-        // send token
-        Users.findOneAndUpdate({ username: username }, { token: token }).exec();
-        return res
-          .status(201)
-          .json({ success: "login success!", token: token });
-      }
-    });
+    // await 'unwraps' promises
+    const tmp = await db.execute(
+      "SELECT * FROM people_table WHERE user_name = ?",
+      [username]
+    );
+    console.log(tmp[0]);
+    const { user_id, user_name, password_hash } = tmp[0][0];
+    // console.log("credentials: " + storedUsername + " " + storedPassword);
+
+    // username not found
+    if (!user_name) {
+      console.log("login failed: Username not found. Please try again.");
+      return res.status(404).json({ error: "username not found" });
+    }
+
+    // wrong password
+    if (password_hash !== encryptedPassword) {
+      console.log("login failed: Password incorrect. Please try again.");
+      return res.status(401).json({ error: "password incorrect" });
+    }
+
+    // if correct:
+    console.log("success!");
+    const token = createToken(tmp[0][0].user_id.toString()); // to be added to db
+    // add token to db
+    await db.execute(
+      "UPDATE people_table SET jwt_token = ? WHERE user_name = ?",
+      [token, username]
+    );
+    return res
+      .status(201)
+      .json({ success: "login success!", token: token, user_id: user_id });
   } catch (err) {
-    return res.status(401).json({ error: "???" });
+    return res.status(401).json({ error: err });
   }
 };
 
 const validateUser = async (req, res, next) => {
-  const token =
-    req.body.token || req.query.token || req.headers["x-access-token"];
+  // const token =
+  //   req.body.token || req.query.token || req.headers["x-access-token"];
+  const { user_id, token } = req.body;
   if (!token) {
     return res.status(403).send("A token is required for authentication");
   }
   try {
-    const check = Users.findOne({ username: req.username }).exec();
-    if (!check) {
-      console.log("login failed: Username not found. Please try again.");
-      res.status(404).json({ error: "username not found" });
+    const check = await db.execute(
+      "SELECT jwt_token FROM people_table WHERE user_id = ?",
+      [user_id]
+    );
+    // console.log(check[0]);
+    const { jwt_token } = check[0][0];
+    if (!jwt_token) {
+      res.status(404).json({ error: "timeout error" });
     } else {
       const decoded = jwt.verify(token, process.env.SECRET);
       req.user = decoded;
@@ -109,23 +115,5 @@ const validateUser = async (req, res, next) => {
     return res.status(401).send("Invalid Token");
   }
 };
-
-const logoutUser = async (req, res, next) => {
-  const { username } = req.body;
-  if (!username) {
-    return res
-      .status(403)
-      .json({ error: "username is required for logging out" });
-  }
-  try {
-    await Users.findOneAndUpdate({ username: username }, { token: "" }).then(
-      (x) => {
-        res.status(201).json({ success: "logout success" });
-      }
-    );
-  } catch (err) {
-    return res.status(401).send("User not found");
-  }
-};
-
-module.exports = { signupUser, loginUser, validateUser, logoutUser };
+module.exports = { signupUser, loginUser, validateUser };
+// module.exports = { signupUser, loginUser, validateUser, logoutUser };

@@ -2,16 +2,22 @@
 require("dotenv").config();
 const path = require("path");
 const express = require("express");
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
 // import routes
 const loginSignupRoutes = require("./routes/loginsignup");
-const editProjectRoutes = require("./routes/editproject");
-const manageProjectListRoutes = require("./routes/manageprojectlist");
+const myTasksRoutes = require("./routes/mytasks");
+const personAvailRoutes = require("./routes/personavail");
+const projManagementRoutes = require("./routes/projmanagement");
+const runAlgoRoutes = require("./routes/runalgo");
+const taskManagementRoutes = require("./routes/taskmanagement");
 
 const app = express();
+
+// connect to mySQL database
+const db = require("./util/database");
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -35,16 +41,13 @@ app.get("/", async (req, res, next) => {
 });
 
 app.use(loginSignupRoutes);
-app.use(editProjectRoutes);
-app.use(manageProjectListRoutes);
+app.use(myTasksRoutes);
+app.use(personAvailRoutes);
+app.use(projManagementRoutes);
+app.use(runAlgoRoutes);
+app.use(taskManagementRoutes);
 
 // Creating connection to listen for HTTP requests
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    app.listen(process.env.PORT);
-    console.log(`Running on port ${process.env.PORT}...`);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+app.listen(3000, () => {
+  console.log(`Example app listening at http://localhost:3000`);
+});

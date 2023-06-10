@@ -1,6 +1,7 @@
-const task = require("./Task");
-const personJSONable = require("./PersonJSONable");
-const luxon = require("luxon");
+const db = require("../util/database");
+
+const { AvailabilityJSONable } = require("./availabilityJSONable");
+const { PersonJSONable } = require("./personJSONable");
 
 class Person {
   // id is a string
@@ -13,7 +14,6 @@ class Person {
     this.avails = avails;
     this.role = role;
   }
-
   toString() {
     var out = "Name: " + this.name + ", " + this.role + "\n";
     out += "Availabilities: ";
@@ -22,18 +22,20 @@ class Person {
     }
     return out;
   }
-
   toJSONable() {
     const outAvails = [];
     for (let i = 0; i < this.avails.length; i++) {
       outAvails[i] = this.avails[i].toJSONable();
     }
-    return new personJSONable.PersonJSONable(
-      this.id,
-      this.name,
-      outAvails,
-      this.role
-    );
+    return new PersonJSONable(this.id, this.name, outAvails, this.role);
+  }
+
+  static fromJSONable(object) {
+    const outAvails = [];
+    for (let i = 0; i < object.avails.length; i++) {
+      outAvails[i] = AvailabilityJSONable.fromJSONable(object.avails[i]);
+    }
+    return new Person(object.id, object.name, outAvails, role);
   }
 }
 
