@@ -1,9 +1,22 @@
 require("dotenv").config();
 
 // import statements for models and object TODO
+const Person = require("./../models/people");
+const Project = require("./../models/projects");
+const TaskGroup = require("./../models/taskgroups");
+const Task = require("./../models/tasks");
+const {
+  PersonProject,
+  PersonTaskGroup,
+  PersonTask,
+  ProjectTaskGroup,
+  ProjectTask,
+  TaskGroupTask,
+} = require("./../models/relations");
+
 const PUTPersonUser = async (req, res, next) => {
-  const { username, proj_id, role } = req.body;
-  if (!username || !proj_id || !role) {
+  const { username, proj_id, role, proj_name } = req.body;
+  if (!username || !proj_id || !role || !proj_name) {
     return res.status(403).json({
       error:
         "username, project ID and role are required for adding person to project",
@@ -11,6 +24,21 @@ const PUTPersonUser = async (req, res, next) => {
   }
   try {
     // add add person logic
+    await Person.findOne({ where: { user_name: username } })
+      .then((result) => {
+        PersonProject.create({
+          project_id: proj_id,
+          project_name: proj_name,
+          permission: role,
+          user_id: result.user_id,
+        });
+      })
+      .then(() => {
+        return res.status(201).json({ success: "person added" });
+      })
+      .catch((err) => {
+        return res.status(401).json({ error: err });
+      });
   } catch (err) {
     return res.status(401).json({ error: err });
   }

@@ -1,6 +1,18 @@
 require("dotenv").config();
 
 // import statements for models and object TODO
+const Person = require("./../models/people");
+const Project = require("./../models/projects");
+const TaskGroup = require("./../models/taskgroups");
+const Task = require("./../models/tasks");
+const {
+  PersonProject,
+  PersonTaskGroup,
+  PersonTask,
+  ProjectTaskGroup,
+  ProjectTask,
+  TaskGroupTask,
+} = require("./../models/relations");
 
 const getProjsUser = async (req, res, next) => {
   const { user_id } = req.body;
@@ -24,7 +36,29 @@ const PUTProjectUser = async (req, res, next) => {
     });
   }
   try {
-    // add create project logid
+    // add create project logic
+    const newProj = await Project.create({
+      project_name: proj_name,
+    }).then((result) => {
+      PersonProject.create({
+        project_name: proj_name,
+        user_id: user_id,
+        permission: "owner",
+        project_id: result.project_id,
+        // availability_start: "2023-06-12 08:05:45.000000",
+        // availability_end: "2023-06-12 08:05:45.000000",
+      })
+        .then(() => {
+          console.log("project created successfully");
+          return res
+            .status(201)
+            .json({ success: "project created!", proj_id: result.project_id });
+        })
+        .catch((err) => {
+          console.log(err);
+          return res.status(401).json({ error: "project creation failed" });
+        });
+    });
   } catch (err) {
     return res.status(401).json({ error: err });
   }

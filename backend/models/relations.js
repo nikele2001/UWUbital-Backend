@@ -16,11 +16,11 @@ const PersonProject = sequelize.define("people_projects_table", {
   },
   availability_start: {
     type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: true,
   },
   availability_end: {
     type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: true,
   },
 });
 
