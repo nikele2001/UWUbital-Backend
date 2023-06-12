@@ -1,7 +1,7 @@
 CREATE TABLE people_table (
     user_id INT NOT NULL UNIQUE AUTO_INCREMENT PRIMARY KEY,
     user_name VARCHAR(45) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(100) NOT NULL,
     jwt_token VARCHAR(255),
     bio VARCHAR(100)
 );

@@ -3,8 +3,9 @@ const db = require("../util/database");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
-const Person = require("./../models/Person");
+// const Person = require("../algorithm/Person");
 // const Projects = require("../models/Projects");
+const Person = require("../models/people");
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, {
@@ -21,7 +22,7 @@ const Securitykey = Buffer.from(
 );
 // side note: Everytime encryption/decryption is run, a new cipher object needs to be created.
 
-const signupUser = (req, res, next) => {
+const signupUser = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res
@@ -32,11 +33,18 @@ const signupUser = (req, res, next) => {
   let encryptedPassword =
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
   try {
-    db.execute(
-      "INSERT INTO people_table (user_name, password_hash) VALUES (?, ?)",
-      [username, encryptedPassword]
-    ).then(() => console.log("signup success"));
-    return res.status(201).json({ success: "success" });
+    const existingUser = await Person.findOne({
+      where: { user_name: username },
+    });
+    if (existingUser === null) {
+      const user = await Person.create({
+        user_name: username,
+        password_hash: encryptedPassword,
+      });
+      return res.status(201).json({ success: "success" });
+    } else {
+      return res.status(403).json({ error: "username taken" });
+    }
   } catch (err) {
     return res.status(401).json({ error: err });
   }
@@ -54,37 +62,44 @@ const loginUser = async (req, res, next) => {
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
   try {
     // await 'unwraps' promises
-    const tmp = await db.execute(
-      "SELECT * FROM people_table WHERE user_name = ?",
-      [username]
-    );
-    console.log(tmp[0]);
-    const { user_id, user_name, password_hash } = tmp[0][0];
-    // console.log("credentials: " + storedUsername + " " + storedPassword);
-
+    const existingUser = await Person.findOne({
+      where: { user_name: username },
+    });
     // username not found
-    if (!user_name) {
+    if (existingUser === null) {
       console.log("login failed: Username not found. Please try again.");
       return res.status(404).json({ error: "username not found" });
     }
 
     // wrong password
-    if (password_hash !== encryptedPassword) {
+    if (existingUser.password_hash !== encryptedPassword) {
       console.log("login failed: Password incorrect. Please try again.");
       return res.status(401).json({ error: "password incorrect" });
     }
 
     // if correct:
     console.log("success!");
-    const token = createToken(tmp[0][0].user_id.toString()); // to be added to db
+    const token = createToken(existingUser.user_id.toString()); // to be added to db
     // add token to db
-    await db.execute(
-      "UPDATE people_table SET jwt_token = ? WHERE user_name = ?",
-      [token, username]
-    );
-    return res
-      .status(201)
-      .json({ success: "login success!", token: token, user_id: user_id });
+    await Person.update(
+      {
+        jwt_token: token,
+      },
+      {
+        where: {
+          user_name: username,
+        },
+      }
+    )
+      .then((updatedRows) => {
+        console.log(`Updated ${updatedRows} row(s).`);
+      })
+      .catch((err) => console.log("error updating token"));
+    return res.status(201).json({
+      success: "login success!",
+      token: token,
+      user_id: existingUser.user_id,
+    });
   } catch (err) {
     return res.status(401).json({ error: err });
   }
@@ -98,21 +113,20 @@ const validateUser = async (req, res, next) => {
     return res.status(403).send("A token is required for authentication");
   }
   try {
-    const check = await db.execute(
-      "SELECT jwt_token FROM people_table WHERE user_id = ?",
-      [user_id]
-    );
+    const existingUser = await Person.findOne({
+      where: { user_id: user_id },
+    });
     // console.log(check[0]);
-    const { jwt_token } = check[0][0];
+    const jwt_token = existingUser.jwt_token;
     if (!jwt_token) {
-      res.status(404).json({ error: "timeout error" });
+      res.status(404).json({ error: "Timeout error" });
     } else {
       const decoded = jwt.verify(token, process.env.SECRET);
       req.user = decoded;
-      res.status(201).json({ success: "token authenticated!" });
+      res.status(201).json({ success: "Token authenticated!" });
     }
   } catch (err) {
-    return res.status(401).send("Invalid Token");
+    return res.status(401).send("Invalid Token. Please log in again.");
   }
 };
 module.exports = { signupUser, loginUser, validateUser };
