@@ -71,11 +71,11 @@ sequelize
     console.log("Database and tables updated!");
   })
   .then(() => {
-    app.listen(3000);
+    app.listen(4000);
   })
   .then(() => {
-    console.log("Example app listening at http://localhost:3000");
+    console.log("Example app listening at http://localhost:4000");
   });
-// app.listen(3000, () => {
-//   console.log(`Example app listening at http://localhost:3000`);
+// app.listen(4000, () => {
+//   console.log(`Example app listening at http://localhost:4000`);
 // });
