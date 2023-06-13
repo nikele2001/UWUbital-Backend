@@ -132,6 +132,50 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   }
   try {
     // add update task group logic
+    // add new task group info
+    let taskgrp = await TaskGroup.findOne({
+      where: { group_id: group_id },
+    }).then(async (taskgrp) => {
+      const task_group_name = taskgrp.task_name;
+      let id_array = [];
+      await TaskGroup.update(
+        {
+          task_name: task_group_name,
+          pax: taskgrp.pax + task_arr_JSON.length,
+        },
+        {
+          where: { group_id: group_id },
+        }
+      )
+        .then(async (taskgrp) => {
+          console.log("task group updated! adding tasks...");
+          for (let i = 0; i < task_arr_JSON.length; i++) {
+            await Task.create({
+              task_JSON: task_arr_JSON[i],
+              completed: false,
+              preassigned: false,
+            }).then((task) => {
+              id_array[i] = task.task_id;
+              TaskGroupTask.create({
+                group_id: group_id,
+                task_id: task.task_id,
+              });
+            });
+          }
+        })
+        .then(() => {
+          return res.status(201).json({
+            success: "task group and respective tasks added successfully",
+            group_id: group_id,
+            id_array: id_array,
+          });
+        })
+        .catch((err) => {
+          return res.status(401).json({
+            error: err,
+          });
+        });
+    });
   } catch (err) {
     return res.status(401).json({ error: err });
   }

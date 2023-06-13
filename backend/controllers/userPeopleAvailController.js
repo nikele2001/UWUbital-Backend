@@ -71,15 +71,30 @@ const DELETEPersonUser = async (req, res, next) => {
 };
 
 const PATCHPersonUser = async (req, res, next) => {
-  const { username, proj_id, role } = req.body;
-  if (!username || !proj_id || !role) {
+  const { user_id, proj_id, role } = req.body;
+  if (!user_id || !proj_id || !role) {
     return res.status(403).json({
       error:
-        "username, project ID and role are required for editing person in project",
+        "user ID, project ID and role are required for editing person in project",
     });
   }
   try {
     // add edit person logic
+    let person = await PersonProject.findOne({
+      where: { project_id: proj_id, user_id: user_id },
+    });
+    if (!person || person.permission === "owner") {
+      throw new Error("eatshitflykite");
+    }
+
+    await PersonProject.update(
+      { permission: role },
+      { where: { project_id: proj_id, user_id: user_id } }
+    ).then(() => {
+      return res.status(201).json({
+        success: `User permission editted successfully to ${role}!`,
+      });
+    });
   } catch (err) {
     return res.status(401).json({ error: err });
   }
@@ -139,6 +154,24 @@ const PATCHAvailUser = async (req, res, next) => {
   }
   try {
     // add update avail logic
+    const searchCond = {
+      relation_id: avail_id,
+      user_id: user_id,
+      project_id: project_id,
+    };
+    let avail = await PersonProject.findOne({ where: searchCond });
+    if (!avail) {
+      throw new Error("Availability not found");
+    }
+    console.log("avail found");
+    PersonProject.update(
+      { avail_JSON: avail_JSON },
+      { where: searchCond }
+    ).then(() => {
+      return res
+        .status(201)
+        .json({ success: `availability changed successfully!` });
+    });
   } catch (err) {
     return res.status(401).json({ error: err });
   }

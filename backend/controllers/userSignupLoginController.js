@@ -74,7 +74,7 @@ const loginUser = async (req, res, next) => {
     // wrong password
     if (existingUser.password_hash !== encryptedPassword) {
       console.log("login failed: Password incorrect. Please try again.");
-      return res.status(401).json({ error: "password incorrect" });
+      return res.status(403).json({ error: "password incorrect" });
     }
 
     // if correct:
