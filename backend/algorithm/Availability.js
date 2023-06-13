@@ -22,6 +22,12 @@ class Availability {
   static fromJSONable(object) {
     return new Availability(this.id, Interval.fromISO(object.interval));
   }
+  createCopy() {
+    return new Availability(this.id, this.interval);
+  }
+  overlaps(interval) {
+    return this.interval.overlaps(interval);
+  }
 }
 
 module.exports = { Availability };

@@ -1,9 +1,10 @@
-import {Person, Task, Project} from 'Objects';
-import {PriorityQueue} from 'js-priority-queue';
+import { Person, Task, Project } from "Objects";
+import { PriorityQueue } from "js-priority-queue";
 
 export default function runGreedyAlgorithm(project) {
-    /*
-    WARNING: this function mutates the project passed in as argument.
+  /*
+    Param: A Project object with some unassigned tasks (tasks in taskGroups with user_id of undefined or -1).
+    Return: A Project object with no unassigned tasks.
 
     Algorithm
     1. Get a list of pairs containing a task and the number of people it can be assigned to.
@@ -19,81 +20,92 @@ export default function runGreedyAlgorithm(project) {
         decreasing length and use it to assign tasks like in 4, except disregard if the person 
         is available or not.
     */
-    let people = project.people;
-    let tasks = project.tasks;
 
-    // define constants
-    const totalWorkload = Person.getTotalWorkload(people) + Task.getTotalWorkload(tasks);
-    const meanWorkload = totalWorkload / people.length;
-    const upperLimit = meanWorkload * 1.2;
+  const proj = project.createCopy();
+  const people = proj.people;
 
-    // step 1
-    const taskQueue = [];
-    for (const task of taskQueue) {
-        let canDo = 0;
-        for (const person of people) {
-            if (person.canTakeTask(task)) {
-                canDo++;
-            }
-        }
-        taskQueue.push({"task": task, "assignees": canDo});
+  // get list of tasks
+  const tasks = [];
+  for (const tg of proj.taskGroups) {
+    for (const task of tg.tasks) {
+      tasks.push(task);
     }
+  }
 
-    // step 2
-    taskQueue.sort((a, b) => a.assignees <= b.assignees ? -1 : 1);
+  // define constants
+  const totalWorkload = project.getTotalWorkload();
+  const meanWorkload = totalWorkload / people.length;
+  const upperLimit = meanWorkload * 1.2;
 
-    // step 3
-    const pArray = people.map(person => {
-        return {"person": person, "workload": person.getTotalWorkload(), newTasks: []};
-    });
-    const pQueue = new PriorityQueue({comparator: function (a, b) {
-        return b.workload - a.workload;
-    }});
-    for (const p in pArray) {
-        pQueue.queue(p);
+  // step 1
+  const taskQueue = [];
+  for (const task of tasks) {
+    let canDo = 0;
+    for (const person of people) {
+      if (person.canTakeTask(task)) {
+        canDo++;
+      }
     }
+    taskQueue.push({ task: task, assignees: canDo });
+  }
 
-    // step 4
-    const dumpsterList = [];
-    for (const t of taskQueue) {
-        const task = t.task;
-        const unavailableP = [];
-        let unassigned = true;
-        while (unassigned && pQueue.length > 0) {
-            const lowest = pQueue.dequeue();
-            if (lowest.person.canTakeTask(task) 
-                && lowest.workload <= meanWorkload
-                && lowest.workload + task.getTimeNeeded() <= upperLimit) {
-                lowest.newTasks.push(task);
-                unassigned = false;
-                lowest.workload += task.getTimeNeeded();
-                pQueue.queue(lowest);
-            } else {
-                unavailableP.push(lowest);
-            }
-        }
-        if (unassigned) {
-            dumpsterList.push(task);
-        }
-        for (const p in unavailableP) {
-            pQueue.queue(p);
-        }
-    }
+  // step 2
+  taskQueue.sort((a, b) => (a.assignees <= b.assignees ? -1 : 1));
 
-    // step 5
-    dumpsterList.sort((a, b) => a.getTimeNeeded() - b.getTimeNeeded());
-    for (const task of dumpsterList) {
-        const lowest = pQueue.dequeue();
-        lowest.newTasks.push(task);
+  // step 3
+  const pArray = people.map((person) => {
+    return {
+      person: person,
+      workload: proj.getWorkloadOf(person),
+    };
+  });
+  const pQueue = new PriorityQueue({
+    comparator: function (a, b) {
+      return b.workload - a.workload;
+    },
+  });
+  for (const p in pArray) {
+    pQueue.queue(p);
+  }
+
+  // step 4
+  const dumpsterList = [];
+  for (const t of taskQueue) {
+    const task = t.task;
+    const unavailableP = [];
+    let unassigned = true;
+    while (unassigned && pQueue.length > 0) {
+      const lowest = pQueue.dequeue();
+      if (
+        lowest.person.canTakeTask(task) &&
+        lowest.workload <= meanWorkload &&
+        lowest.workload + task.getTimeNeeded() <= upperLimit
+      ) {
+        // lowest.newTasks.push(task);
+        task.assignTo(lowest.person);
+        unassigned = false;
         lowest.workload += task.getTimeNeeded();
         pQueue.queue(lowest);
+      } else {
+        unavailableP.push(lowest);
+      }
     }
+    if (unassigned) {
+      dumpsterList.push(task);
+    }
+    for (const p in unavailableP) {
+      pQueue.queue(p);
+    }
+  }
 
-    // reassign tasks and return
-    const out = new Project([], []);
-    out.people = pArray.map(p => {
-        p.person.tasks = [...p.person.tasks, ...p.newTasks];
-        return p.person;
-    })
-    return out;
+  // step 5
+  dumpsterList.sort((a, b) => a.getTimeNeeded() - b.getTimeNeeded());
+  for (const task of dumpsterList) {
+    const lowest = pQueue.dequeue();
+    task.assignTo(lowest.person);
+    lowest.workload += task.getTimeNeeded();
+    pQueue.queue(lowest);
+  }
+
+  return proj;
 }
