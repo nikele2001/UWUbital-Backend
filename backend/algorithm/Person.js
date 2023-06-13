@@ -1,6 +1,6 @@
-const db = require("../util/database");
+// const db = require("../util/database");
 
-const { AvailabilityJSONable } = require("../models/availabilityJSONable");
+const { Availability } = require("./Availability");
 const { PersonJSONable } = require("./personJSONable");
 
 class Person {
@@ -36,7 +36,7 @@ class Person {
   static fromJSONable(object) {
     const outAvails = [];
     for (let i = 0; i < object.avails.length; i++) {
-      outAvails[i] = AvailabilityJSONable.fromJSONable(object.avails[i]);
+      outAvails[i] = Availability.fromJSONable(object.avails[i]);
     }
     return new Person(object.id, object.name, outAvails, role);
   }

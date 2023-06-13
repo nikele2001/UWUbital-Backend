@@ -80,8 +80,8 @@ function runGreedyAlgorithm(project) {
         lowest.workload <= meanWorkload &&
         lowest.workload + task.getTimeNeeded() <= upperLimit
       ) {
-        // lowest.newTasks.push(task);
         task.assignTo(lowest.person);
+        task.setUnassigned();
         unassigned = false;
         lowest.workload += task.getTimeNeeded();
         pQueue.queue(lowest);
@@ -102,6 +102,7 @@ function runGreedyAlgorithm(project) {
   for (const task of dumpsterList) {
     const lowest = pQueue.dequeue();
     task.assignTo(lowest.person);
+    task.setUnassigned();
     lowest.workload += task.getTimeNeeded();
     pQueue.queue(lowest);
   }

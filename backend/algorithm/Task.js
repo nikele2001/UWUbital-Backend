@@ -9,22 +9,25 @@ class Task {
   // proj_id is a number
   // task_priority is a number
   // group_id is a number
+  // isAssigned is a boolean
   constructor(
     task_id,
     interval,
     user_id,
-    completed,
+    isCompleted,
     proj_id,
     task_priority,
-    group_id
+    group_id,
+    isAssigned
   ) {
     this.task_id = task_id;
     this.interval = interval;
     this.user_id = user_id;
-    this.completed = completed;
+    this.isCompleted = isCompleted;
     this.proj_id = proj_id;
     this.task_priority = task_priority;
     this.group_id = group_id;
+    this.isAssigned = isAssigned;
   }
   getIntervalString() {
     return this.interval.toLocaleString(DateTime.DATETIME_MED);
@@ -50,7 +53,8 @@ class Task {
       this.completed,
       this.proj_id,
       this.task_priority,
-      this.group_id
+      this.group_id,
+      this.isAssigned
     );
   }
   static fromJSONable(object) {
@@ -62,7 +66,8 @@ class Task {
       this.completed,
       this.proj_id,
       this.task_priority,
-      this.group_id
+      this.group_id,
+      this.isAssigned
     );
   }
   createCopy() {
@@ -73,7 +78,8 @@ class Task {
       this.completed,
       this.proj_id,
       this.task_priority,
-      this.group_id
+      this.group_id,
+      this.isAssigned
     );
   }
   overlaps(other) {
@@ -84,6 +90,9 @@ class Task {
   }
   assignTo(person) {
     this.user_id = person.getId();
+  }
+  setUnassigned() {
+    this.isAssigned = false;
   }
 }
 
