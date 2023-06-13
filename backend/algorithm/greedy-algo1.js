@@ -1,7 +1,6 @@
-import { Person, Task, Project } from "Objects";
-import { PriorityQueue } from "js-priority-queue";
+const { PriorityQueue } = require("js-priority-queue");
 
-export default function runGreedyAlgorithm(project) {
+function runGreedyAlgorithm(project) {
   /*
     Param: A Project object with some unassigned tasks (tasks in taskGroups with user_id of undefined or -1).
     Return: A Project object with no unassigned tasks.
@@ -33,7 +32,7 @@ export default function runGreedyAlgorithm(project) {
   }
 
   // define constants
-  const totalWorkload = project.getTotalWorkload();
+  const totalWorkload = proj.getTotalWorkload();
   const meanWorkload = totalWorkload / people.length;
   const upperLimit = meanWorkload * 1.2;
 
@@ -109,3 +108,5 @@ export default function runGreedyAlgorithm(project) {
 
   return proj;
 }
+
+module.exports = runGreedyAlgorithm;
