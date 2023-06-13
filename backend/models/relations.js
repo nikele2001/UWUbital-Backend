@@ -14,13 +14,16 @@ const PersonProject = sequelize.define("people_projects_table", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  availability_start: {
-    type: DataTypes.DATE,
-    allowNull: true,
+  avail_JSON: {
+    type: DataTypes.STRING,
   },
-  availability_end: {
-    type: DataTypes.DATE,
-    allowNull: true,
+  user_id: {
+    type: DataTypes.INTEGER,
+    PrimaryKey: false,
+  },
+  project_id: {
+    type: DataTypes.INTEGER,
+    PrimaryKey: false,
   },
 });
 

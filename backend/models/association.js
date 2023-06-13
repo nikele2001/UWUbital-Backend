@@ -79,38 +79,66 @@ const {
 
 module.exports = {
   createAssociations: function () {
-    Person.belongsToMany(Project, {
+    // relationship table between people and projects is a super many-to-many relationship, since many people can be in a project, and many projects can be participated by people
+    // additionally, each record in the people_projects relationship table states a person's availability in the project
+    Person.hasMany(PersonProject, {
       foreignKey: {
         name: "user_id",
       },
-      through: PersonProject,
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
     });
-    Project.belongsToMany(Person, {
+    PersonProject.belongsTo(Person, {
+      foreignKey: {
+        name: "user_id",
+      },
+    });
+    Project.hasMany(PersonProject, {
       foreignKey: {
         name: "project_id",
       },
-      through: PersonProject,
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
     });
-    Person.belongsToMany(TaskGroup, {
+    PersonProject.belongsTo(Project, {
+      foreignKey: {
+        name: "project_id",
+      },
+    });
+
+    // Person.belongsToMany(TaskGroup, {
+    //   foreignKey: {
+    //     name: "user_id",
+    //   },
+    //   through: PersonTaskGroup,
+    //   onDelete: "CASCADE",
+    //   onUpdate: "CASCADE",
+    // });
+    // TaskGroup.belongsToMany(Person, {
+    //   foreignKey: {
+    //     name: "group_id",
+    //   },
+    //   through: PersonTaskGroup,
+    //   onDelete: "CASCADE",
+    //   onUpdate: "CASCADE",
+    // });
+    Person.hasMany(PersonTaskGroup, {
       foreignKey: {
         name: "user_id",
       },
-      through: PersonTaskGroup,
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
     });
-    TaskGroup.belongsToMany(Person, {
+    PersonTaskGroup.belongsTo(Person, {
+      foreignKey: {
+        name: "user_id",
+      },
+    });
+    TaskGroup.hasMany(PersonTaskGroup, {
       foreignKey: {
         name: "group_id",
       },
-      through: PersonTaskGroup,
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
     });
+    PersonTaskGroup.belongsTo(TaskGroup, {
+      foreignKey: {
+        name: "group_id",
+      },
+    });
+
     Person.belongsToMany(Task, {
       foreignKey: {
         name: "user_id",

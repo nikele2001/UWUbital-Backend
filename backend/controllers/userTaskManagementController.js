@@ -57,15 +57,52 @@ const PATCHTaskUser = async (req, res, next) => {
 };
 
 const PUTTaskGroupUser = async (req, res, next) => {
-  const { project_id, pax, task_arr_JSON } = req.body;
-  if (!project_id || !pax || !task_arr_JSON) {
+  const { project_id, pax, task_group_name, task_arr_JSON } = req.body;
+  if (!project_id || !pax || !task_arr_JSON || !task_group_name) {
     return res.status(403).json({
       error:
-        "task array JSON, project ID and pax are required for editing task in project",
+        "task array JSON, task group name, project ID and pax are required for editing task in project",
     });
   }
   try {
     // add add task group logic
+    // add record into taskgroup table
+    let id_array = [];
+    let group_id = 0;
+    await TaskGroup.create({
+      task_name: task_group_name,
+      pax: task_arr_JSON.length,
+    })
+      .then(async (taskgrp) => {
+        group_id = taskgrp.group_id;
+        for (let i = 0; i < task_arr_JSON.length; i++) {
+          await Task.create({
+            task_JSON: task_arr_JSON[i],
+            completed: false,
+            preassigned: false,
+          }).then((task) => {
+            id_array[i] = task.task_id;
+            TaskGroupTask.create({
+              group_id: taskgrp.group_id,
+              task_id: task.task_id,
+            });
+          });
+        }
+      })
+      .then(() => {
+        return res.status(201).json({
+          success: "task group and respective tasks added successfully",
+          group_id: group_id,
+          id_array: id_array,
+        });
+      })
+      .catch((err) => {
+        return res.status(401).json({
+          error: err,
+        });
+      });
+    // add record into tasks table
+    // add record into taskgrouptask table
   } catch (err) {
     return res.status(401).json({ error: err });
   }

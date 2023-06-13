@@ -10,13 +10,8 @@ const Task = sequelize.define("tasks_table", {
     primaryKey: true,
     unique: true,
   },
-  start_task_datetime: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  end_task_datetime: {
-    type: DataTypes.DATE,
-    allowNull: false,
+  task_JSON: {
+    type: DataTypes.STRING,
   },
   completed: {
     type: DataTypes.BOOLEAN,

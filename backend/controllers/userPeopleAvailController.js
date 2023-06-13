@@ -14,6 +14,10 @@ const {
   TaskGroupTask,
 } = require("./../models/relations");
 
+// additional imports
+const Avail = require("./../algorithm/Availability");
+const AvailJSON = require("./../algorithm/availabilityJSONable");
+
 const PUTPersonUser = async (req, res, next) => {
   const { username, proj_id, role, proj_name } = req.body;
   if (!username || !proj_id || !role || !proj_name) {
@@ -25,16 +29,23 @@ const PUTPersonUser = async (req, res, next) => {
   try {
     // add add person logic
     await Person.findOne({ where: { user_name: username } })
-      .then((result) => {
+      .then(async (result) => {
+        const person = await PersonProject.findOne({
+          where: { user_id: result.user_id, project_id: proj_id },
+        });
+        if (person !== null) {
+          console.log("person alr added");
+          throw new Error("person already added");
+        }
         PersonProject.create({
           project_id: proj_id,
           project_name: proj_name,
           permission: role,
           user_id: result.user_id,
         });
-      })
-      .then(() => {
-        return res.status(201).json({ success: "person added" });
+        return res
+          .status(201)
+          .json({ success: "person added", user_id: result.user_id });
       })
       .catch((err) => {
         return res.status(401).json({ error: err });
@@ -84,6 +95,21 @@ const PUTAvailUser = async (req, res, next) => {
   }
   try {
     // add add avail logic
+    const newAvail = await PersonProject.findOne({
+      where: { user_id: user_id },
+    }).then(async (result) => {
+      const createdAvail = PersonProject.create({
+        permission: result.permission,
+        avail_JSON: avail_JSON,
+        user_id: user_id,
+        project_id: project_id,
+      }).then((result) => {
+        return res.status(201).json({
+          success: `added user's availability successfully`,
+          avail_id: result.relation_id,
+        });
+      });
+    });
   } catch (err) {
     return res.status(401).json({ error: err });
   }
