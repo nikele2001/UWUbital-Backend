@@ -1,4 +1,5 @@
 require("dotenv").config();
+const sequelize = require("../util/database");
 
 // import statements for models and object TODO
 const Person = require("./../models/people");
@@ -64,48 +65,91 @@ const PUTTaskGroupUser = async (req, res, next) => {
         "task array JSON, task group name, project ID and pax are required for editing task in project",
     });
   }
-  try {
-    // add add task group logic
-    // add record into taskgroup table
-    let id_array = [];
-    let group_id = 0;
-    await TaskGroup.create({
-      task_name: task_group_name,
-      pax: task_arr_JSON.length,
-    })
-      .then(async (taskgrp) => {
-        group_id = taskgrp.group_id;
-        for (let i = 0; i < task_arr_JSON.length; i++) {
-          await Task.create({
-            task_JSON: task_arr_JSON[i],
-            completed: false,
-            preassigned: false,
-          }).then((task) => {
-            id_array[i] = task.task_id;
-            TaskGroupTask.create({
-              group_id: taskgrp.group_id,
-              task_id: task.task_id,
-            });
-          });
-        }
-      })
-      .then(() => {
-        return res.status(201).json({
-          success: "task group and respective tasks added successfully",
-          group_id: group_id,
-          id_array: id_array,
-        });
-      })
-      .catch((err) => {
-        return res.status(401).json({
-          error: err,
-        });
-      });
-    // add record into tasks table
-    // add record into taskgrouptask table
-  } catch (err) {
-    return res.status(401).json({ error: err });
+  // check if project exist
+  const proj = await Project.findOne({ where: { project_id: project_id } });
+  if (proj === null) {
+    return res.status(404).json({ error: "project not found" });
   }
+
+  let id_array = [];
+  let group_id = 0;
+  await TaskGroup.create({
+    task_group_name: task_group_name,
+    pax: pax,
+  })
+    // create record in project task group table
+    .then((result) => {
+      group_id = result.group_id;
+      return ProjectTaskGroup.create({
+        group_id: result.group_id,
+        project_id: project_id,
+      });
+    })
+    .then((taskgroup) => {
+      group_id = taskgroup.group_id;
+      console.log(`group_id: ${group_id}`);
+    })
+    .catch((err) => res.status(401).json({ error: err }));
+
+  taskJSON_promise_arr = task_arr_JSON.map(
+    (x) => new Promise((resolve, reject) => resolve(x))
+  );
+
+  Promise.all(taskJSON_promise_arr)
+    // create record in task table
+    .then(async (result) => {
+      console.log("adding tasks to tasks table...");
+      for (let i = 0; i < result.length; i++) {
+        // console.log(result[i]);
+        result[i] = await Task.create({
+          task_JSON: result[i],
+        });
+      }
+      return result;
+    })
+    // create record in project task table
+    .then(async (result) => {
+      console.log("adding records in project task table...");
+      for (let i = 0; i < result.length; i++) {
+        result[i] = await ProjectTask.create({
+          project_id: project_id,
+          task_id: result[i].task_id,
+        });
+      }
+      return result;
+    })
+    // create record in task group task table
+    .then(async (result) => {
+      console.log("adding records into task group task table...");
+      for (let i = 0; i < result.length; i++) {
+        result[i] = await TaskGroupTask.create({
+          group_id: group_id,
+          task_id: result[i].task_id,
+        });
+      }
+      return result;
+    })
+    // add task id to idarray
+    .then((result) => {
+      console.log("pushing task ids into id array...");
+      for (let i = 0; i < result.length; i++) {
+        // console.log(result[i].task_id);
+        id_array.push(result[i].task_id);
+      }
+    })
+    .then(() => {
+      console.log("task group added successfully");
+      return res.status(201).json({
+        success: "task group and respective tasks added successfully",
+        group_id: group_id,
+        id_array: id_array,
+      });
+    })
+    .catch((err) => {
+      return res.status(401).json({
+        error: err,
+      });
+    });
 };
 
 const DELETETaskGroupUser = async (req, res, next) => {
@@ -130,55 +174,86 @@ const PATCHTaskGroupUser = async (req, res, next) => {
         "task array JSON, group ID and pax are required for editing task in project",
     });
   }
-  try {
-    // add update task group logic
-    // add new task group info
-    let taskgrp = await TaskGroup.findOne({
-      where: { group_id: group_id },
-    }).then(async (taskgrp) => {
-      const task_group_name = taskgrp.task_name;
-      let id_array = [];
-      await TaskGroup.update(
-        {
-          task_name: task_group_name,
-          pax: taskgrp.pax + task_arr_JSON.length,
-        },
-        {
-          where: { group_id: group_id },
-        }
-      )
-        .then(async (taskgrp) => {
-          console.log("task group updated! adding tasks...");
-          for (let i = 0; i < task_arr_JSON.length; i++) {
-            await Task.create({
-              task_JSON: task_arr_JSON[i],
-              completed: false,
-              preassigned: false,
-            }).then((task) => {
-              id_array[i] = task.task_id;
-              TaskGroupTask.create({
-                group_id: group_id,
-                task_id: task.task_id,
-              });
-            });
-          }
-        })
-        .then(() => {
-          return res.status(201).json({
-            success: "task group and respective tasks added successfully",
-            group_id: group_id,
-            id_array: id_array,
-          });
-        })
-        .catch((err) => {
-          return res.status(401).json({
-            error: err,
-          });
+  // find entries in task group task table, obtain taskids related
+  // delete entries in task table
+  // delete entries in task group table, project task table and people task table automatically (cascading)
+  // run PUTTaskGroupUser
+  // add new task group info
+  // get project id and task group name
+  const findCond = { where: { group_id: group_id } };
+
+  // finding project id so that project task table can be updated accordingly
+  const proj = await ProjectTaskGroup.findAll({
+    where: { group_id: group_id },
+  });
+  const project_id = proj[0].project_id;
+  console.log("number: " + project_id);
+  console.log("finding...");
+
+  // removing old records from task table
+  await TaskGroupTask.findAll({
+    attributes: [
+      [sequelize.fn("DISTINCT", sequelize.col("task_id")), "task_id"],
+    ],
+    where: { group_id: group_id },
+  }).then(async (result) => {
+    for (let i = 0; i < result.length; i++) {
+      await Task.destroy({ where: { task_id: result[i].task_id } });
+    }
+    return result;
+  });
+
+  taskJSON_promise_arr = task_arr_JSON.map(
+    (x) => new Promise((resolve, reject) => resolve(x))
+  );
+  console.log("Removed existing tasks under task group. adding new tasks...");
+
+  // adding updated tasks to task group and relevant relation tables
+  Promise.all(taskJSON_promise_arr)
+    // create record in task table
+    .then(async (result) => {
+      console.log("adding tasks to tasks table...");
+      for (let i = 0; i < result.length; i++) {
+        // console.log(result[i]);
+        result[i] = await Task.create({
+          task_JSON: result[i],
         });
+      }
+      return result;
+    })
+    // create record in project task table
+    .then(async (result) => {
+      console.log("adding records in project task table...");
+      for (let i = 0; i < result.length; i++) {
+        result[i] = await ProjectTask.create({
+          project_id: project_id,
+          task_id: result[i].task_id,
+        });
+      }
+      return result;
+    })
+    // create record in task group task table
+    .then(async (result) => {
+      console.log("adding records into task group task table...");
+      for (let i = 0; i < result.length; i++) {
+        result[i] = await TaskGroupTask.create({
+          group_id: group_id,
+          task_id: result[i].task_id,
+        });
+      }
+      return result;
+    })
+    .then(() => {
+      console.log("task group added successfully");
+      return res.status(201).json({
+        success: "task group and respective tasks added successfully",
+      });
+    })
+    .catch((err) => {
+      return res.status(401).json({
+        error: err,
+      });
     });
-  } catch (err) {
-    return res.status(401).json({ error: err });
-  }
 };
 
 module.exports = {

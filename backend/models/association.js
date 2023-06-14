@@ -14,69 +14,6 @@ const {
   TaskGroupTask,
 } = require("./relations");
 
-// const createAssociations = () => {
-//   Person.belongsToMany(Project, {
-//     through: PersonProject,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Project.belongsToMany(Person, {
-//     through: PersonProject,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Person.belongsToMany(TaskGroup, {
-//     through: PersonTaskGroup,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   TaskGroup.belongsToMany(Person, {
-//     through: PersonTaskGroup,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Person.belongsToMany(Task, {
-//     through: PersonTask,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Task.belongsToMany(Person, {
-//     through: PersonTask,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Project.belongsToMany(TaskGroup, {
-//     through: ProjectTaskGroup,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   TaskGroup.belongsToMany(Project, {
-//     through: ProjectTaskGroup,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Project.belongsToMany(Task, {
-//     through: ProjectTask,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Task.belongsToMany(Project, {
-//     through: ProjectTask,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   TaskGroup.belongsToMany(Task, {
-//     through: TaskGroupTask,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-//   Task.belongsToMany(TaskGroup, {
-//     through: TaskGroupTask,
-//     onDelete: "CASCADE",
-//     onUpdate: "CASCADE",
-//   });
-// };
-
 module.exports = {
   createAssociations: function () {
     // relationship table between people and projects is a super many-to-many relationship, since many people can be in a project, and many projects can be participated by people
@@ -102,22 +39,6 @@ module.exports = {
       },
     });
 
-    // Person.belongsToMany(TaskGroup, {
-    //   foreignKey: {
-    //     name: "user_id",
-    //   },
-    //   through: PersonTaskGroup,
-    //   onDelete: "CASCADE",
-    //   onUpdate: "CASCADE",
-    // });
-    // TaskGroup.belongsToMany(Person, {
-    //   foreignKey: {
-    //     name: "group_id",
-    //   },
-    //   through: PersonTaskGroup,
-    //   onDelete: "CASCADE",
-    //   onUpdate: "CASCADE",
-    // });
     Person.hasMany(PersonTaskGroup, {
       foreignKey: {
         name: "user_id",

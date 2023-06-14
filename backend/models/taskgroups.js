@@ -10,7 +10,7 @@ const TaskGroup = sequelize.define("taskgroups_table", {
     primaryKey: true,
     unique: true,
   },
-  task_name: {
+  task_group_name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
