@@ -68,6 +68,9 @@ const getMyTasksUser = async (req, res, next) => {
     // array of taskgroupid promises
     const taskGroupIds = taskIds.then((idarr) =>
       TaskGroupTask.findAll({
+        attributes: [
+          [sequelize.fn("DISTINCT", sequelize.col("group_id")), "group_id"],
+        ],
         where: { task_id: idarr },
       })
     );
