@@ -1,5 +1,6 @@
 require("dotenv").config();
 const sequelize = require("../util/database");
+const Sequelize = require("sequelize");
 // import statements for models and object TODO
 const { TaskGroupJSONable } = require("./../algorithm/TaskGroupJSONable");
 const { TaskJSONable } = require("./../algorithm/TaskJSONable");
@@ -29,7 +30,34 @@ const getProjsUser = async (req, res, next) => {
     });
   }
   try {
-    // add getprojects logic
+    // {project_id, user_id, avail_JSON, permission}
+    const projOS = PersonProject.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("project_id")), "project_id"],
+        "permission",
+      ],
+      where: { user_id: user_id },
+    });
+    const projIds = projOS.then((x) => x.map((y) => y.project_id));
+    // {project_name, project_id}
+    const projOS2 = projIds.then((x) =>
+      Project.findAll({
+        where: { project_id: x },
+      })
+    );
+    const out = await Promise.all([projOS, projOS2]).then((array) => {
+      const projOS = array[0];
+      // console.log(projOS);
+      const projOS2 = array[1];
+      const owned = projOS
+        .filter((x) => x.permission === "owner")
+        .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0]);
+      const unowned = projOS
+        .filter((x) => x.permission !== "owner")
+        .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0]);
+      return { owned: owned, unowned: unowned };
+    });
+    return res.status(201).json({ projects: out });
   } catch (err) {
     return res.status(401).json({ error: err });
   }
@@ -139,7 +167,7 @@ const POSTProjectUser = async (req, res, next) => {
 
   const userIds = PersonProject.findAll({
     where: { project_id: proj_id },
-  }).then(x => x.map(y => y.user_id));
+  }).then((x) => x.map((y) => y.user_id));
 
   const users = userIds.then((idarr) =>
     Person.findAll({
@@ -149,7 +177,7 @@ const POSTProjectUser = async (req, res, next) => {
 
   const projName = Project.findOne({
     where: { project_id: proj_id },
-  }).then(x => x.project_name);
+  }).then((x) => x.project_name);
 
   return await Promise.all([taskGroups, tasks, users, projName, userIds])
     .then((array) => {
