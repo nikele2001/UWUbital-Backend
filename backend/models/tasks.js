@@ -13,14 +13,18 @@ const Task = sequelize.define("tasks_table", {
   task_JSON: {
     type: DataTypes.STRING,
   },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  preassigned: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
+  // completed: {
+  //   type: DataTypes.BOOLEAN,
+  //   allowNull: false,
+  // },
+  // preassigned: {
+  //   type: DataTypes.BOOLEAN,
+  //   allowNull: false,
+  // },
+  // priority: {
+  //   type: DataTypes.BOOLEAN,
+  //   allowNull: true,
+  // },
 });
 
 module.exports = Task;

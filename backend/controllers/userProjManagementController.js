@@ -71,23 +71,19 @@ const PATCHProjectUser = async (req, res, next) => {
       error: "username and project name are required for editing project name",
     });
   }
-  try {
-    // add edit project name logic
-    let project = await Project.findOne({ where: { project_id: proj_id } });
-    if (!project) {
-      throw new Error("Project not found");
-    }
-    Project.update(
-      { project_name: proj_name },
-      { where: { project_id: proj_id } }
-    ).then(() => {
-      return res.status(201).json({
-        success: `project name changed successfully to ${proj_name}!`,
-      });
-    });
-  } catch (err) {
-    return res.status(401).json({ error: err });
+  // add edit project name logic
+  let project = await Project.findOne({ where: { project_id: proj_id } });
+  if (!project) {
+    return res.status(404).json({ error: "Project not found" });
   }
+  Project.update(
+    { project_name: proj_name },
+    { where: { project_id: proj_id } }
+  ).then(() => {
+    return res.status(201).json({
+      success: `project name changed successfully to ${proj_name}!`,
+    });
+  });
 };
 
 const POSTProjectUser = async (req, res, next) => {
