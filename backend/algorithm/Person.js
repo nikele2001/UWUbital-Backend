@@ -1,7 +1,7 @@
 const db = require("../util/database");
 
-const { AvailabilityJSONable } = require("../models/availabilityJSONable");
-const { PersonJSONable } = require("./personJSONable");
+const { AvailabilityJSONable } = require("./AvailabilityJSONable");
+const { PersonJSONable } = require("./PersonJSONable");
 
 class Person {
   // id is a string

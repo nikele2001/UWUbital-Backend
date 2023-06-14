@@ -3,6 +3,10 @@ const sequelize = require("../util/database");
 // import statements for models and object TODO
 const { TaskGroupJSONable } = require("./../algorithm/TaskGroupJSONable");
 const { TaskJSONable } = require("./../algorithm/TaskJSONable");
+const { Person: PersonO } = require("./../algorithm/Person");
+const { PersonJSONable } = require("./../algorithm/PersonJSONable");
+const { Project: ProjectO } = require("./../algorithm/Project");
+const { ProjectJSONable } = require("./../algorithm/ProjectJSONable");
 const Person = require("./../models/people");
 const Project = require("./../models/projects");
 const TaskGroup = require("./../models/taskgroups");
@@ -108,99 +112,92 @@ const POSTProjectUser = async (req, res, next) => {
   if (user === null) {
     return res.status(403).json({ error: "user does not have viewing rights" });
   }
-  // get task groups that belong to the project (ProjectTaskGroup)
-  const task_group_array = await ProjectTaskGroup.findAll({
-    attributes: [
-      sequelize.fn("DISTINCT", sequelize.col("group_id")),
-      "group_id",
-    ],
+  // get promise array of task group ids that belong to the project (ProjectTaskGroup)
+  const taskGroupIds = ProjectTaskGroup.findAll({
     where: { project_id: proj_id },
-  });
-  // an array of promises, each promise contain a record with the field group_id
-  const task_group_promise_array = task_group_array.map(
-    (x) => new Promise((resolve, reject) => resolve(x))
+  }).then((x) => x.map((y) => y.group_id));
+  // taskGroups is promise array of taskgroups
+  const taskGroups = taskGroupIds.then((idarr) =>
+    TaskGroup.findAll({
+      where: { group_id: idarr },
+    })
   );
 
-  Promise.all(task_group_promise_array)
-    // get task_group_name and pax for each task group
-    .then(async (result) => {
-      console.log("finding task group information (pax and group name)...");
-      for (let i = 0; i < result.length; i++) {
-        const tg = await TaskGroup.findOne({
-          where: { group_id: result[i].group_id },
-        });
-        result[i] = {
-          group_id: result[i].group_id,
-          task_group_name: tg.task_group_name,
-          pax: tg.pax,
-        };
-        console.log("successfully found task group information!");
-        console.log(result);
-        return result;
-      }
+  const taskIds = taskGroupIds
+    .then((idarr) =>
+      TaskGroupTask.findAll({
+        where: { group_id: idarr },
+      })
+    )
+    .then((x) => x.map((y) => y.task_id));
+
+  const tasks = taskIds.then((idarr) =>
+    Task.findAll({
+      where: { task_id: idarr },
     })
-    // get task id specific to task group id
-    // get task id for each task groups in the project (TaskGroupTask)
-    .then(async (result) => {
-      console.log("finding tasks in respective task group...");
-      for (let i = 0; i < result.length; i++) {
-        // an array of records from the task group task table
-        const tasks_arr = await TaskGroupTask.findAll({
-          where: { group_id: result[i].group_id },
-        });
-        result[i] = {
-          group_id: result[i].group_id,
-          task_group_name: result[i].task_group_name,
-          pax: result[i].pax,
-          // tasks is an array of task ids relevant to the task group
-          tasks: tasks_arr.map((x) => x.task_id),
-        };
-      }
-      return result;
+  );
+
+  const userIds = PersonProject.findAll({
+    where: { project_id: proj_id },
+  }).then(x => x.map(y => y.user_id));
+
+  const users = userIds.then((idarr) =>
+    Person.findAll({
+      where: { user_id: idarr },
     })
-    // get task records based on task ids for each task group (Task)
-    .then(async (result) => {
-      console.log(
-        "finding task information for each task in each task group..."
-      );
-      for (let i = 0; i < result.length; i++) {
-        result[i] = {
-          group_id: result[i].group_id,
-          task_group_name: result[i].task_group_name,
-          pax: result[i].pax,
-          // tasks is now an array of records from the tasks table
-          tasks: result[i].tasks.map(
-            async (x) => await Task.findOne({ where: { task_id: x } }) // why does this line execute first before the subsequent then() statement??
-          ),
-        };
-      }
-      return result;
-    })
-    // constructing TaskGroupJSONable
-    .then(async (result) => {
-      for (let i = 0; i < result.length; i++) {
-        // remember to stringify product!!!!
-        result[i] = new TaskGroupJSONable(
-          result[i].group_id,
-          result[i].task_group_name,
-          result[i].tasks.map((x) => x.task_JSON),
-          result[i].pax
+  );
+
+  const projName = Project.findOne({
+    where: { project_id: proj_id },
+  }).then(x => x.project_name);
+
+  return await Promise.all([taskGroups, tasks, users, projName, userIds])
+    .then((array) => {
+      // {group_id, task_group_name, pax}
+      const taskGroups = array[0];
+      // {task_JSON (string), task_id}
+      const tasksStr = array[1];
+      const tasks = tasksStr.map((x) => {
+        return { task_id: x.task_id, task_JSON: JSON.parse(x.task_JSON) };
+      });
+      // {user_id, user_name, password_hash, jwt_token, bio}
+      const users = array[2];
+      const projName = array[3];
+      // {relation_id, permission, avail_JSON (one only, string), user_id, project_id}
+      const availRaw = array[4];
+      const outPeople = users.map((userEntry) => {
+        const halfway = availRaw.filter(
+          (x) => x.user_id === userEntry.user_id && x.avail_JSON != null
         );
-        return result;
-      }
+        const availJSONs = halfway.map((x) => JSON.parse(x.avail_JSON));
+        const role = availRaw.filter((x) => x.user_id === userEntry.user_id)[0]
+          .permission;
+        return new PersonJSONable(
+          userEntry.user_id,
+          userEntry.user_name,
+          availJSONs,
+          role
+        );
+      });
+      const outTGs = taskGroups.map((tgo) => {
+        const outTasks = tasks
+          .filter((x) => x.task_JSON.group_id === tgo.group_id)
+          .map((x) => x.task_JSON);
+        return new TaskGroupJSONable(
+          tgo.group_id,
+          tgo.task_group_name,
+          outTasks,
+          tgo.pax
+        );
+      });
+      return new ProjectJSONable(proj_id, projName, outPeople, outTGs);
     })
-    .then((result) => {
-      console.log("project retrieval successful");
-      console.log(result);
+    .catch((err) => {
+      console.log(err);
       return res
-        .status(201)
-        .json({ success: "project info retrieval successful" });
-    })
-    .catch((err) =>
-      res
         .status(401)
-        .json({ error: "error finding for tasks in task groups in project" })
-    );
+        .json({ error: "error finding for tasks in task groups in project" });
+    });
   // get all personnel info for the project (PersonProject)
 };
 

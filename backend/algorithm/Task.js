@@ -1,5 +1,5 @@
 const {DateTime} = require('luxon');
-const {TaskJSONable} = require('./taskJSONable');
+const {TaskJSONable} = require('./TaskJSONable');
 
 class Task {
     // task_id is a number

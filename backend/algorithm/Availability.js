@@ -1,5 +1,5 @@
 const { DateTime } = require("luxon");
-const { AvailabilityJSONable } = require("./availabilityJSONable");
+const { AvailabilityJSONable } = require("./AvailabilityJSONable");
 
 class Availability {
   // id is a number

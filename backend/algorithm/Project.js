@@ -1,6 +1,6 @@
 const { Person } = require("./Person");
 const { TaskGroup } = require("./TaskGroup");
-const { ProjectJSONable } = require("./projectJSONable");
+const { ProjectJSONable } = require("./ProjectJSONable");
 
 class Project {
   // id is a number
