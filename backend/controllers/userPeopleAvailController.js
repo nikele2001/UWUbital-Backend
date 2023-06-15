@@ -16,7 +16,7 @@ const {
 
 // additional imports
 const Avail = require("./../algorithm/Availability");
-const AvailJSON = require("./../algorithm/availabilityJSONable");
+const AvailJSON = require("./../algorithm/AvailabilityJSONable");
 
 // Add person into project
 const PUTPersonUser = async (req, res, next) => {
@@ -29,6 +29,9 @@ const PUTPersonUser = async (req, res, next) => {
   }
   await Person.findOne({ where: { user_name: username } })
     .then(async (result) => {
+      if (!result) {
+        return res.status(404).json({ error: "person not found" });
+      }
       const person = await PersonProject.findOne({
         where: { user_id: result.user_id, project_id: proj_id },
       });
@@ -48,6 +51,7 @@ const PUTPersonUser = async (req, res, next) => {
         .json({ success: "person added", user_id: result.user_id });
     })
     .catch((err) => {
+      console.log(err);
       return res.status(401).json({ error: err });
     });
 };

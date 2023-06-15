@@ -80,7 +80,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
     })
     .catch((err) => res.status(401).json({ error: err }));
 
-  taskJSON_promise_arr = task_arr_JSON.map(
+  taskJSON_promise_arr = JSON.parse(task_arr_JSON).map(
     (x) => new Promise((resolve, reject) => resolve(x))
   );
 
@@ -91,7 +91,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
       for (let i = 0; i < result.length; i++) {
         // console.log(result[i]);
         result[i] = await Task.create({
-          task_JSON: result[i],
+          task_JSON: JSON.stringify(result[i]),
         });
       }
       return result;
@@ -135,6 +135,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
       });
     })
     .catch((err) => {
+      console.log(err);
       return res.status(401).json({
         error: err,
       });

@@ -47,14 +47,19 @@ const getProjsUser = async (req, res, next) => {
     );
     const out = await Promise.all([projOS, projOS2]).then((array) => {
       const projOS = array[0];
-      // console.log(projOS);
       const projOS2 = array[1];
       const owned = projOS
         .filter((x) => x.permission === "owner")
-        .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0]);
+        .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0])
+        .map((x) => {
+          return { proj_name: x.project_name, proj_id: x.project_id };
+        });
       const unowned = projOS
         .filter((x) => x.permission !== "owner")
-        .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0]);
+        .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0])
+        .map((x) => {
+          return { proj_name: x.project_name, proj_id: x.project_id };
+        });
       return { owned: owned, unowned: unowned };
     });
     return res.status(201).json({ projects: out });
@@ -165,9 +170,11 @@ const POSTProjectUser = async (req, res, next) => {
     })
   );
 
-  const userIds = PersonProject.findAll({
+  const userRows = PersonProject.findAll({
     where: { project_id: proj_id },
-  }).then((x) => x.map((y) => y.user_id));
+  });
+
+  const userIds = userRows.then((x) => x.map((y) => y.user_id));
 
   const users = userIds.then((idarr) =>
     Person.findAll({
@@ -179,7 +186,7 @@ const POSTProjectUser = async (req, res, next) => {
     where: { project_id: proj_id },
   }).then((x) => x.project_name);
 
-  return await Promise.all([taskGroups, tasks, users, projName, userIds])
+  return await Promise.all([taskGroups, tasks, users, projName, userRows])
     .then((array) => {
       // {group_id, task_group_name, pax}
       const taskGroups = array[0];
@@ -218,7 +225,11 @@ const POSTProjectUser = async (req, res, next) => {
           tgo.pax
         );
       });
-      return new ProjectJSONable(proj_id, projName, outPeople, outTGs);
+      return res
+        .status(201)
+        .json({
+          project: new ProjectJSONable(proj_id, projName, outPeople, outTGs),
+        });
     })
     .catch((err) => {
       console.log(err);

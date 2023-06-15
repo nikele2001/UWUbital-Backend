@@ -58,7 +58,7 @@ const getMyTasksUser = async (req, res, next) => {
         [sequelize.fn("DISTINCT", sequelize.col("task_id")), "task_id"],
       ],
       where: { user_id: user_id },
-    });
+    }).then((idarr) => idarr.map((x) => x.task_id));
     // array of task promises
     const tasks = taskIds.then((idarr) =>
       Task.findAll({
@@ -73,7 +73,7 @@ const getMyTasksUser = async (req, res, next) => {
         ],
         where: { task_id: idarr },
       })
-    );
+    ).then((idarr) => idarr.map((x) => x.group_id));
     // array of taskgroup promises
     const taskgroup = taskGroupIds.then((idarr) =>
       TaskGroup.findAll({
