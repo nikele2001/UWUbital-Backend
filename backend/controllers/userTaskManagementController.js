@@ -79,7 +79,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
     })
     .catch((err) => res.status(401).json({ error: err }));
 
-  taskJSON_promise_arr = JSON.parse(task_arr_JSON).map(
+  taskJSON_promise_arr = task_arr_JSON.map(
     (x) => new Promise((resolve, reject) => resolve(x))
   );
 
