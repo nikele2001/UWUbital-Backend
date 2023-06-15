@@ -45,7 +45,6 @@ const PATCHTaskUser = async (req, res, next) => {
   }
 };
 
-// not needed for now
 const PUTTaskGroupUser = async (req, res, next) => {
   const { project_id, pax, task_group_name, task_arr_JSON } = req.body;
   if (!project_id || !pax || !task_arr_JSON || !task_group_name) {
@@ -150,6 +149,19 @@ const DELETETaskGroupUser = async (req, res, next) => {
       error: "Group ID is required for editing task in project",
     });
   }
+  // delete all tasks in task group
+  await TaskGroupTask.findAll({ where: { group_id: group_id } })
+    .then(async (result) => {
+      await Task.destroy({ where: { task_id: result.map((x) => x.task_id) } });
+    })
+    .then(async () => {
+      await TaskGroup.destroy({ where: { group_id: group_id } });
+    })
+    .then(() => res.status(201).json({ success: "success" }))
+    .catch((err) =>
+      res.status(401).json({ error: "task group not deleted correctly" })
+    );
+  // delete task group
 };
 
 const PATCHTaskGroupUser = async (req, res, next) => {
@@ -160,13 +172,6 @@ const PATCHTaskGroupUser = async (req, res, next) => {
         "task array JSON, group ID and pax are required for editing task in project",
     });
   }
-  // find entries in task group task table, obtain taskids related
-  // delete entries in task table
-  // delete entries in task group table, project task table and people task table automatically (cascading)
-  // run PUTTaskGroupUser
-  // add new task group info
-  // get project id and task group name
-  const findCond = { where: { group_id: group_id } };
 
   // finding project id so that project task table can be updated accordingly
   const proj = await ProjectTaskGroup.findAll({
@@ -183,6 +188,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
     ],
     where: { group_id: group_id },
   }).then(async (result) => {
+    // POSSIBLE OPTIMISATION
     for (let i = 0; i < result.length; i++) {
       await Task.destroy({ where: { task_id: result[i].task_id } });
     }

@@ -57,18 +57,26 @@ const PUTPersonUser = async (req, res, next) => {
 };
 
 const DELETEPersonUser = async (req, res, next) => {
-  const { username, proj_id } = req.body;
-  if (!username || !proj_id) {
+  const { user_id, proj_id } = req.body;
+  if (!user_id || !proj_id) {
     return res.status(403).json({
       error:
-        "username and project ID are required for removing person from project",
+        "user ID and project ID are required for removing person from project",
     });
   }
-  try {
-    // add remove person logic
-  } catch (err) {
-    return res.status(401).json({ error: err });
-  }
+  await PersonProject.destroy({
+    where: { user_id: user_id, project_id: proj_id },
+  })
+    .then(() =>
+      res
+        .status(201)
+        .json({ success: "person deleted from project successfully" })
+    )
+    .catch(() =>
+      res
+        .status(401)
+        .json({ error: "person unable to be deleted from project" })
+    );
 };
 
 const PATCHPersonUser = async (req, res, next) => {
@@ -79,26 +87,22 @@ const PATCHPersonUser = async (req, res, next) => {
         "user ID, project ID and role are required for editing person in project",
     });
   }
-  try {
-    // add edit person logic
-    let person = await PersonProject.findOne({
-      where: { project_id: proj_id, user_id: user_id },
-    });
-    if (!person || person.permission === "owner") {
-      throw new Error("eatshitflykite");
-    }
-
-    await PersonProject.update(
-      { permission: role },
-      { where: { project_id: proj_id, user_id: user_id } }
-    ).then(() => {
-      return res.status(201).json({
-        success: `User permission editted successfully to ${role}!`,
-      });
-    });
-  } catch (err) {
-    return res.status(401).json({ error: err });
+  // add edit person logic
+  let person = await PersonProject.findOne({
+    where: { project_id: proj_id, user_id: user_id },
+  });
+  if (!person || person.permission === "owner") {
+    throw new Error("eatshitflykite");
   }
+
+  await PersonProject.update(
+    { permission: role },
+    { where: { project_id: proj_id, user_id: user_id } }
+  ).then(() => {
+    return res.status(201).json({
+      success: `User permission editted successfully to ${role}!`,
+    });
+  });
 };
 
 // add availability to person
@@ -117,7 +121,6 @@ const PUTAvailUser = async (req, res, next) => {
   if (newAvail === null) {
     return res.status(404).json({ error: "user not found" });
   }
-  // add add avail logic
   await PersonProject.findOne({
     where: { user_id: user_id, project_id: project_id },
   })
@@ -147,11 +150,13 @@ const DELETEAvailUser = async (req, res, next) => {
       error: "Avail ID is required for removing avail in project",
     });
   }
-  try {
-    // add delete avail logic
-  } catch (err) {
-    return res.status(401).json({ error: err });
-  }
+  await PersonProject.destroy({ where: { relation_id: avail_id } })
+    .then(() =>
+      res.status(201).json({ success: "availability deleted successfully" })
+    )
+    .catch((err) =>
+      res.status(401).json({ error: "Availability unable to be deleted" })
+    );
 };
 
 const PATCHAvailUser = async (req, res, next) => {
@@ -162,7 +167,6 @@ const PATCHAvailUser = async (req, res, next) => {
         "User ID, Project ID, Avail ID and avail_JSON are required for updating avail in project",
     });
   }
-  // add update avail logic
   const searchCond = {
     relation_id: avail_id,
     user_id: user_id,
