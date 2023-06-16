@@ -85,9 +85,9 @@ const PUTTaskGroupUser = async (req, res, next) => {
 
   Promise.all(taskJSON_promise_arr)
     // create record in task table
-    .then(async (result) => {
-      await Task.bulkCreate(result.map((x) => JSON.stringify(x)));
-      return result;
+    .then((result) => {
+      return Task.bulkCreate(result.map((x) => JSON.stringify(x)));
+      //return result;
     })
     .then(async (result) => {
       // adding task IDs to task_JSON
@@ -117,24 +117,23 @@ const PUTTaskGroupUser = async (req, res, next) => {
       return result;
     })
     // create record in project task table
-    .then(async (result) => {
-      await ProjectTask.bulkCreate(
+    .then((result) => {
+      return ProjectTask.bulkCreate(
         result.map((x) => new { project_id: project_id, task_id: x.task_id }())
       );
-      return result;
     })
     // create record in task group task table
-    .then(async (result) => {
-      await TaskGroupTask.bulkCreate(
+    .then((result) => {
+      return TaskGroupTask.bulkCreate(
         result.map((x) => new { group_id: group_id, task_id: x.task_id }())
       );
-      return result;
     })
     // add task id to idarray
     .then((result) => {
-      for (let i = 0; i < result.length; i++) {
-        id_array.push(result[i].task_id);
-      }
+      result.map((x) => id_array.push(x.task_id));
+      // for (let i = 0; i < result.length; i++) {
+      //   id_array.push(result[i].task_id);
+      // }
     })
     .then(() => {
       return res.status(201).json({
@@ -210,11 +209,10 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   // adding updated tasks to task group and relevant relation tables
   Promise.all(taskJSON_promise_arr)
     // create record in task table
-    .then(async (result) => {
-      await Task.bulkCreate({
+    .then((result) => {
+      return Task.bulkCreate({
         task_JSON: result.map((x) => JSON.stringify(x)),
       });
-      return result;
     })
     .then(async (result) => {
       // adding task IDs to task_JSON
@@ -241,24 +239,23 @@ const PATCHTaskGroupUser = async (req, res, next) => {
       }
       return result;
     })
-    .then(async (result) => {
-      await ProjectTask.bulkCreate(
+    .then((result) => {
+      return ProjectTask.bulkCreate(
         new { project_id: project_id, task_id: result.map((x) => x.task_id) }()
       );
-      return result;
     })
     // create record in task group task table
-    .then(async (result) => {
-      await TaskGroupTask.bulkCreate(
+    .then((result) => {
+      return TaskGroupTask.bulkCreate(
         new { group_id: group_id, task_id: result.map((x) => x.task_id) }()
       );
-      return result;
     })
     // add task id to idarray
     .then((result) => {
-      for (let i = 0; i < result.length; i++) {
-        id_array.push(result[i].task_id);
-      }
+      result.map((x) => id_array.push(x.task_id));
+      // for (let i = 0; i < result.length; i++) {
+      //   id_array.push(result[i].task_id);
+      // }
     })
     .then(() => {
       return res.status(201).json({
