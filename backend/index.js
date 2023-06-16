@@ -67,7 +67,7 @@ app.use(taskManagementRoutes);
 
 // Creating connection to listen for HTTP requests
 sequelize
-  .sync({ force: false })
+  .sync({ force: true })
   .then((result) => {
     console.log("Database and tables updated!");
   })

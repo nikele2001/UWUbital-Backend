@@ -22,6 +22,8 @@ module.exports = {
       foreignKey: {
         name: "user_id",
       },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     });
     PersonProject.belongsTo(Person, {
       foreignKey: {
@@ -32,6 +34,8 @@ module.exports = {
       foreignKey: {
         name: "project_id",
       },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     });
     PersonProject.belongsTo(Project, {
       foreignKey: {
@@ -43,6 +47,8 @@ module.exports = {
       foreignKey: {
         name: "user_id",
       },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     });
     PersonTaskGroup.belongsTo(Person, {
       foreignKey: {
@@ -53,6 +59,8 @@ module.exports = {
       foreignKey: {
         name: "group_id",
       },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     });
     PersonTaskGroup.belongsTo(TaskGroup, {
       foreignKey: {
