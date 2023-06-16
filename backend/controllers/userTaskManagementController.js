@@ -199,10 +199,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   let id_array = [];
 
   // updating pax in taskgroup table
-  await TaskGroup.update(
-    { pax: pax, task_group_name: task_group_name },
-    { where: { group_id: group_id } }
-  );
+  await TaskGroup.update({ pax: pax }, { where: { group_id: group_id } });
 
   // removing old records from task table
   await TaskGroupTask.findAll({
