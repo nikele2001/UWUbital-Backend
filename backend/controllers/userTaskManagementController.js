@@ -179,6 +179,7 @@ const DELETETaskGroupUser = async (req, res, next) => {
   // delete task group
 };
 
+// NOTE: rewrite operation, not add on
 const PATCHTaskGroupUser = async (req, res, next) => {
   const { group_id, pax, task_arr_JSON } = req.body;
   if (!group_id || !pax || !task_arr_JSON) {
@@ -195,7 +196,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   const project_id = proj[0].project_id;
   console.log("number: " + project_id);
   console.log("finding...");
-
+  let id_array = [];
   // removing old records from task table
   await TaskGroupTask.findAll({
     attributes: [
@@ -264,10 +265,19 @@ const PATCHTaskGroupUser = async (req, res, next) => {
       }
       return result;
     })
+    // add task id to idarray
+    .then((result) => {
+      console.log("pushing task ids into id array...");
+      for (let i = 0; i < result.length; i++) {
+        // console.log(result[i].task_id);
+        id_array.push(result[i].task_id);
+      }
+    })
     .then(() => {
       console.log("task group added successfully");
       return res.status(201).json({
         success: "task group and respective tasks added successfully",
+        id_array: id_array,
       });
     })
     .catch((err) => {
