@@ -83,12 +83,13 @@ const getMyTasksUser = async (req, res, next) => {
     return await Promise.all([projArr, tasks, taskgroup]).then((array) => {
       const projs = array[0];
       const tasks = array[1];
+      // {task_group_name, pax, group_id}
       const taskGroups = array[2];
       const outArr = [];
-      const index = 0;
+      let index = 0;
       for (const task of tasks) {
         const tc = JSON.parse(task.task_JSON);
-        const tg = taskGroups.filter((x) => x.group_id === task.group_id)[0];
+        const tg = taskGroups.filter((x) => Number(x.group_id) === Number(tc.group_id))[0];
         const tgCopy = {
           id: tg.group_id,
           name: tg.task_name,
@@ -96,7 +97,7 @@ const getMyTasksUser = async (req, res, next) => {
           pax: tg.pax,
           priority: 1,
         };
-        const projName = projs.filter((x) => x.project_id === tc.proj_id)[0]
+        const projName = projs.filter((x) => Number(x.project_id) === Number(tc.proj_id))[0]
           .project_name;
         outArr[index] = { projName: projName, taskGroup: tgCopy };
         index++;
