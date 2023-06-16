@@ -32,21 +32,20 @@ const signupUser = async (req, res, next) => {
   let cipher = crypto.createCipheriv(algorithm, Securitykey, initVector);
   let encryptedPassword =
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
-  try {
-    const existingUser = await Person.findOne({
-      where: { user_name: username },
-    });
-    if (existingUser === null) {
-      const user = await Person.create({
-        user_name: username,
-        password_hash: encryptedPassword,
-      });
-      return res.status(201).json({ success: "success" });
-    } else {
-      return res.status(403).json({ error: "username taken" });
-    }
-  } catch (err) {
-    return res.status(401).json({ error: err });
+  const existingUser = await Person.findOne({
+    where: { user_name: username },
+  });
+  if (existingUser === null) {
+    const user = await Person.create({
+      user_name: username,
+      password_hash: encryptedPassword,
+    })
+      .then(() =>
+        res.status(201).json({ success: "user signed up successfully!" })
+      )
+      .catch((err) => res.status(401).json({ error: err }));
+  } else {
+    return res.status(403).json({ error: "username taken" });
   }
 };
 
@@ -60,49 +59,47 @@ const loginUser = async (req, res, next) => {
   let cipher = crypto.createCipheriv(algorithm, Securitykey, initVector);
   let encryptedPassword =
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
-  try {
-    // await 'unwraps' promises
-    const existingUser = await Person.findOne({
-      where: { user_name: username },
-    });
-    // username not found
-    if (existingUser === null) {
-      console.log("login failed: Username not found. Please try again.");
-      return res.status(404).json({ error: "username not found" });
-    }
-
-    // wrong password
-    if (existingUser.password_hash !== encryptedPassword) {
-      console.log("login failed: Password incorrect. Please try again.");
-      return res.status(403).json({ error: "password incorrect" });
-    }
-
-    // if correct:
-    console.log("success!");
-    const token = createToken(existingUser.user_id.toString()); // to be added to db
-    // add token to db
-    await Person.update(
-      {
-        jwt_token: token,
-      },
-      {
-        where: {
-          user_name: username,
-        },
-      }
-    )
-      .then((updatedRows) => {
-        console.log(`Updated ${updatedRows} row(s).`);
-      })
-      .catch((err) => console.log("error updating token"));
-    return res.status(201).json({
-      success: "login success!",
-      token: token,
-      user_id: existingUser.user_id,
-    });
-  } catch (err) {
-    return res.status(401).json({ error: err });
+  // await 'unwraps' promises
+  const existingUser = await Person.findOne({
+    where: { user_name: username },
+  });
+  // username not found
+  if (existingUser === null) {
+    // console.log("login failed: Username not found. Please try again.");
+    return res.status(404).json({ error: "username not found" });
   }
+
+  // wrong password
+  if (existingUser.password_hash !== encryptedPassword) {
+    // console.log("login failed: Password incorrect. Please try again.");
+    return res.status(403).json({ error: "password incorrect" });
+  }
+
+  // if correct:
+  // console.log("login success!");
+  const token = createToken(existingUser.user_id.toString()); // to be added to db
+  // add token to db
+  await Person.update(
+    {
+      jwt_token: token,
+    },
+    {
+      where: {
+        user_name: username,
+      },
+    }
+  )
+    .then((updatedRows) => {
+      console.log(`Updated ${updatedRows} row(s).`);
+    })
+    .then(() =>
+      res.status(201).json({
+        success: "login successful",
+        token: token,
+        user_id: existingUser.user_id,
+      })
+    )
+    .catch((err) => console.log("error updating token"));
 };
 
 const validateUser = async (req, res, next) => {
@@ -112,21 +109,17 @@ const validateUser = async (req, res, next) => {
   if (!token) {
     return res.status(403).send("A token is required for authentication");
   }
-  try {
-    const existingUser = await Person.findOne({
-      where: { user_id: user_id },
-    });
-    // console.log(check[0]);
-    const jwt_token = existingUser.jwt_token;
-    if (!jwt_token) {
-      res.status(404).json({ error: "Timeout error" });
-    } else {
-      const decoded = jwt.verify(token, process.env.SECRET);
-      req.user = decoded;
-      res.status(201).json({ success: "Token authenticated!" });
-    }
-  } catch (err) {
-    return res.status(401).send("Invalid Token. Please log in again.");
+  const existingUser = await Person.findOne({
+    where: { user_id: user_id },
+  });
+  // console.log(check[0]);
+  const jwt_token = existingUser.jwt_token;
+  if (!jwt_token) {
+    return res.status(404).json({ error: "Timeout error" });
+  } else {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    req.user = decoded;
+    return res.status(201).json({ success: "Token authenticated!" });
   }
 };
 module.exports = { signupUser, loginUser, validateUser };
