@@ -192,11 +192,9 @@ const POSTProjectUser = async (req, res, next) => {
       const taskGroups = array[0];
       // {task_JSON (string), task_id}
       const tasksStr = array[1];
-      console.log(tasksStr)
       const tasks = tasksStr.map((x) => {
         return { task_id: x.task_id, task_JSON: JSON.parse(x.task_JSON) };
       });
-      console.log(tasks);
       // {user_id, user_name, password_hash, jwt_token, bio}
       const users = array[2];
       const projName = array[3];

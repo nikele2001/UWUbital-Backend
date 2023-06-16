@@ -98,14 +98,12 @@ const getMyTasksUser = async (req, res, next) => {
           pax: tg.pax,
           priority: 1,
         };
-        // console.log(projs[0]);
         const projName = projs.filter(
           (x) => Number(x.project_id) === Number(tc.proj_id)
         )[0].project_name;
         outArr[index] = { projName: projName, taskGroup: tgCopy };
         index++;
       }
-      // console.log(outArr);
       return res.status(201).json({ success: "success", tasks: outArr });
     });
   } catch (err) {

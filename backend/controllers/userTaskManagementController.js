@@ -88,7 +88,6 @@ const PUTTaskGroupUser = async (req, res, next) => {
     .then(async (result) => {
       console.log("adding tasks to tasks table...");
       for (let i = 0; i < result.length; i++) {
-        // console.log(result[i]);
         result[i] = await Task.create({
           task_JSON: JSON.stringify(result[i]),
         });
@@ -102,9 +101,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
         let new_result = JSON.parse(result[i].task_JSON);
         new_result.task_id = result[i].task_id;
         new_result.group_id = group_id;
-        // console.log(new_result.user_id);
         if (new_result.user_id !== null) {
-          // console.log("relation table records do not exist");
           await PersonTaskGroup.findOrCreate({
             where: { user_id: Number(new_result.user_id), group_id: group_id },
           });
@@ -116,7 +113,6 @@ const PUTTaskGroupUser = async (req, res, next) => {
           });
           console.log("updated relations table!");
         }
-        // console.log(new_result);
         new_result = JSON.stringify(new_result);
         await Task.update(
           { task_JSON: new_result },
@@ -151,7 +147,6 @@ const PUTTaskGroupUser = async (req, res, next) => {
     .then((result) => {
       console.log("pushing task ids into id array...");
       for (let i = 0; i < result.length; i++) {
-        // console.log(result[i].task_id);
         id_array.push(result[i].task_id);
       }
     })
