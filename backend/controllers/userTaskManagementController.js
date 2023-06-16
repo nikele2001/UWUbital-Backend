@@ -197,6 +197,10 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   console.log("number: " + project_id);
   console.log("finding...");
   let id_array = [];
+
+  // updating pax in taskgroup table
+  await TaskGroup.update({pax: pax}, {where: {group_id: group_id}});
+
   // removing old records from task table
   await TaskGroupTask.findAll({
     attributes: [
