@@ -95,6 +95,21 @@ const PUTTaskGroupUser = async (req, res, next) => {
       }
       return result;
     })
+    .then(async (result) => {
+      // adding task IDs to task_JSON
+      console.log("adding task IDs to taskJSON...");
+      for (let i = 0; i < result.length; i++) {
+        let new_result = JSON.parse(result[i].task_JSON);
+        new_result.task_id = result[i].task_id;
+        console.log(new_result);
+        new_result = JSON.stringify(new_result);
+        await Task.update(
+          { task_JSON: new_result },
+          { where: { task_id: result[i].task_id } }
+        );
+      }
+      return result;
+    })
     // create record in project task table
     .then(async (result) => {
       console.log("adding records in project task table...");
@@ -141,7 +156,6 @@ const PUTTaskGroupUser = async (req, res, next) => {
     });
 };
 
-// not done yet
 const DELETETaskGroupUser = async (req, res, next) => {
   const { group_id } = req.body;
   if (!group_id) {
@@ -208,12 +222,26 @@ const PATCHTaskGroupUser = async (req, res, next) => {
       for (let i = 0; i < result.length; i++) {
         // console.log(result[i]);
         result[i] = await Task.create({
-          task_JSON: result[i],
+          task_JSON: JSON.stringify(result[i]),
         });
       }
       return result;
     })
-    // create record in project task table
+    .then(async (result) => {
+      // adding task IDs to task_JSON
+      console.log("adding task IDs to taskJSON...");
+      for (let i = 0; i < result.length; i++) {
+        let new_result = JSON.parse(result[i].task_JSON);
+        new_result.task_id = result[i].task_id;
+        console.log(new_result);
+        new_result = JSON.stringify(new_result);
+        await Task.update(
+          { task_JSON: new_result },
+          { where: { task_id: result[i].task_id } }
+        );
+      }
+      return result;
+    })
     .then(async (result) => {
       console.log("adding records in project task table...");
       for (let i = 0; i < result.length; i++) {
