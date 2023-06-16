@@ -102,7 +102,9 @@ const PUTTaskGroupUser = async (req, res, next) => {
         let new_result = JSON.parse(result[i].task_JSON);
         new_result.task_id = result[i].task_id;
         new_result.group_id = group_id;
-        if (typeof new_result.user_id !== "undefined") {
+        // console.log(new_result.user_id);
+        if (new_result.user_id !== null) {
+          // console.log("relation table records do not exist");
           await PersonTaskGroup.findOrCreate({
             where: { user_id: Number(new_result.user_id), group_id: group_id },
           });
@@ -252,7 +254,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
         let new_result = JSON.parse(result[i].task_JSON);
         new_result.task_id = result[i].task_id;
         console.log(new_result.user_id);
-        if (typeof new_result.user_id !== "undefined") {
+        if (new_result.user_id !== null) {
           await PersonTaskGroup.findOrCreate({
             where: { user_id: Number(new_result.user_id), group_id: group_id },
           });
