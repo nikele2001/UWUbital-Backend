@@ -135,12 +135,12 @@ const PUTAvailUser = async (req, res, next) => {
     .then(async (result) => {
       console.log("adding avail IDs to availJSON...");
       let new_result = JSON.parse(result.avail_JSON);
-      new_result.relation_id = result.relation_id;
+      new_result.id = result.relation_id;
       // console.log(new_result);
       new_result = JSON.stringify(new_result);
       await PersonProject.update(
         { avail_JSON: new_result },
-        { where: { id: result.relation_id } }
+        { where: { relation_id: result.relation_id } }
       );
       return result;
     })
