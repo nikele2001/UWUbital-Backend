@@ -50,7 +50,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
   if (!project_id || !pax || !task_arr_JSON || !task_group_name) {
     return res.status(403).json({
       error:
-        "task array JSON, task group name, project ID and pax are required for editing task in project",
+        "task array JSON, task group name, project ID and pax are required for putting tasks in project",
     });
   }
   // check if project exist
@@ -181,11 +181,11 @@ const DELETETaskGroupUser = async (req, res, next) => {
 
 // NOTE: rewrite operation, not add on
 const PATCHTaskGroupUser = async (req, res, next) => {
-  const { group_id, pax, task_arr_JSON } = req.body;
-  if (!group_id || !pax || !task_arr_JSON) {
+  const { group_id, pax, task_arr_JSON, task_group_name } = req.body;
+  if (!group_id || !pax || !task_arr_JSON || !task_group_name) {
     return res.status(403).json({
       error:
-        "task array JSON, group ID and pax are required for editing task in project",
+        "task array JSON, task group name, group ID and pax are required for editing task in project",
     });
   }
 
@@ -199,7 +199,10 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   let id_array = [];
 
   // updating pax in taskgroup table
-  await TaskGroup.update({pax: pax}, {where: {group_id: group_id}});
+  await TaskGroup.update(
+    { pax: pax, task_group_name: task_group_name },
+    { where: { group_id: group_id } }
+  );
 
   // removing old records from task table
   await TaskGroupTask.findAll({

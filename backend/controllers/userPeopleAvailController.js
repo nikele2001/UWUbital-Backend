@@ -140,7 +140,7 @@ const PUTAvailUser = async (req, res, next) => {
       new_result = JSON.stringify(new_result);
       await PersonProject.update(
         { avail_JSON: new_result },
-        { where: { relation_id: result.relation_id } }
+        { where: { id: result.relation_id } }
       );
       return result;
     })
