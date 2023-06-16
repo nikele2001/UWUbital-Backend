@@ -127,10 +127,22 @@ const PUTAvailUser = async (req, res, next) => {
     .then((result) => {
       return PersonProject.create({
         permission: result.permission,
-        avail_JSON: avail_JSON,
+        avail_JSON: JSON.stringify(avail_JSON),
         user_id: user_id,
         project_id: project_id,
       });
+    })
+    .then(async (result) => {
+      console.log("adding avail IDs to availJSON...");
+      let new_result = JSON.parse(result.avail_JSON);
+      new_result.relation_id = result.relation_id;
+      // console.log(new_result);
+      new_result = JSON.stringify(new_result);
+      await PersonProject.update(
+        { avail_JSON: new_result },
+        { where: { relation_id: result.relation_id } }
+      );
+      return result;
     })
     .then((result) => {
       return res.status(201).json({
@@ -177,7 +189,22 @@ const PATCHAvailUser = async (req, res, next) => {
     return res.status(404).json({ error: "availability not found" });
   }
   // console.log("avail found");
-  PersonProject.update({ avail_JSON: avail_JSON }, { where: searchCond })
+  PersonProject.update(
+    { avail_JSON: JSON.stringify(avail_JSON) },
+    { where: searchCond }
+  )
+    // .then(async (result) => {
+    //   console.log("adding avail IDs to availJSON...");
+    //   console.log(result.avail_JSON);
+    //   let new_result = JSON.parse(result.avail_JSON);
+    //   new_result.relation_id = result.relation_id;
+    //   new_result = JSON.stringify(new_result);
+    //   await PersonProject.update(
+    //     { avail_JSON: new_result },
+    //     { where: { relation_id: result.relation_id } }
+    //   );
+    //   return result;
+    // })
     .then(() => {
       return res
         .status(201)
