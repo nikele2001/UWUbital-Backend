@@ -102,7 +102,19 @@ const PUTTaskGroupUser = async (req, res, next) => {
         let new_result = JSON.parse(result[i].task_JSON);
         new_result.task_id = result[i].task_id;
         new_result.group_id = group_id;
-        console.log(new_result);
+        if (typeof new_result.user_id !== "undefined") {
+          await PersonTaskGroup.findOrCreate({
+            where: { user_id: Number(new_result.user_id), group_id: group_id },
+          });
+          await PersonTask.findOrCreate({
+            where: {
+              user_id: Number(new_result.user_id),
+              task_id: new_result.task_id,
+            },
+          });
+          console.log("updated relations table!");
+        }
+        // console.log(new_result);
         new_result = JSON.stringify(new_result);
         await Task.update(
           { task_JSON: new_result },
@@ -239,7 +251,19 @@ const PATCHTaskGroupUser = async (req, res, next) => {
       for (let i = 0; i < result.length; i++) {
         let new_result = JSON.parse(result[i].task_JSON);
         new_result.task_id = result[i].task_id;
-        console.log(new_result);
+        console.log(new_result.user_id);
+        if (typeof new_result.user_id !== "undefined") {
+          await PersonTaskGroup.findOrCreate({
+            where: { user_id: Number(new_result.user_id), group_id: group_id },
+          });
+          await PersonTask.findOrCreate({
+            where: {
+              user_id: Number(new_result.user_id),
+              task_id: new_result.task_id,
+            },
+          });
+          console.log("updated relations table!");
+        }
         new_result = JSON.stringify(new_result);
         await Task.update(
           { task_JSON: new_result },
