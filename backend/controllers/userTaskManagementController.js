@@ -101,6 +101,7 @@ const PUTTaskGroupUser = async (req, res, next) => {
       for (let i = 0; i < result.length; i++) {
         let new_result = JSON.parse(result[i].task_JSON);
         new_result.task_id = result[i].task_id;
+        new_result.group_id = group_id;
         console.log(new_result);
         new_result = JSON.stringify(new_result);
         await Task.update(
