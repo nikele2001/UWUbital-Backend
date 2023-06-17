@@ -1,7 +1,5 @@
-
-const {DateTime} = require('luxon');
-const {TaskJSONable} = require('./TaskJSONable');
-
+const { DateTime, Interval } = require("luxon");
+const { TaskJSONable } = require("./TaskJSONable");
 
 class Task {
   // task_id is a number
@@ -62,14 +60,14 @@ class Task {
   static fromJSONable(object) {
     const outInterval = Interval.fromISO(object.interval);
     return new Task(
-      this.task_id,
+      object.task_id,
       outInterval,
-      this.user_id,
-      this.completed,
-      this.proj_id,
-      this.task_priority,
-      this.group_id,
-      this.isAssigned
+      object.user_id,
+      object.completed,
+      object.proj_id,
+      object.task_priority,
+      object.group_id,
+      object.isAssigned
     );
   }
   createCopy() {

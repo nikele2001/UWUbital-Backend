@@ -1,6 +1,5 @@
 // const db = require("../util/database");
 
-
 const { Availability } = require("./Availability");
 const { PersonJSONable } = require("./personJSONable");
 const { AvailabilityJSONable } = require("./AvailabilityJSONable");
@@ -40,7 +39,7 @@ class Person {
     for (let i = 0; i < object.avails.length; i++) {
       outAvails[i] = Availability.fromJSONable(object.avails[i]);
     }
-    return new Person(object.id, object.name, outAvails, role);
+    return new Person(object.id, object.name, outAvails, object.role);
   }
   createCopy() {
     const outAvails = [];

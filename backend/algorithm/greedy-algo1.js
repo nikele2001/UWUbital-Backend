@@ -1,7 +1,13 @@
-const { PriorityQueue } = require("js-priority-queue");
-
-function runGreedyAlgorithm(project, numOfPriority) {
-  /*
+// const { PriorityQueue } = require("js-priority-queue");
+const {
+  PriorityQueue,
+  MinPriorityQueue,
+  MaxPriorityQueue,
+} = require("@datastructures-js/priority-queue");
+const { Project } = require("./../algorithm/Project");
+module.exports = {
+  runGreedyAlgorithm: function (project, numOfPriority) {
+    /*
     Param: A Project object with some unassigned tasks (tasks in taskGroups with user_id of undefined or -1).
     Return: A Project object with no unassigned tasks.
 
@@ -20,40 +26,39 @@ function runGreedyAlgorithm(project, numOfPriority) {
         is available or not.
     */
 
+    const proj = project.createCopy();
+    const people = proj.people;
 
-  const proj = project.createCopy();
-  const people = proj.people;
-
-  // get list of tasks and divide by priority
-  const allTasks = [];
-  for (let i = 0; i < numOfPriority; i++) {
-    allTasks[i] = [];
-  }
-  for (const tg of proj.taskGroups) {
-    for (const task of tg.tasks) {
-      allTasks[task.task_priority].push(task);
+    // get list of tasks and divide by priority
+    const allTasks = [];
+    for (let i = 0; i < numOfPriority; i++) {
+      allTasks[i] = [];
     }
-  }
-
-  // define constants
-  const totalWorkload = proj.getTotalWorkload();
-  const meanWorkload = totalWorkload / people.length;
-  const upperLimit = meanWorkload * 1.2;
-
-  for (const tasks of allTasks) {
-    // step 1
-    const taskQueue = [];
-    for (const task of tasks) {
-      let canDo = 0;
-      for (const person of people) {
-        if (person.canTakeTask(task)) {
-          canDo++;
-        }
+    for (const tg of proj.taskGroups) {
+      for (const task of tg.tasks) {
+        allTasks[task.task_priority].push(task);
       }
-      taskQueue.push({ task: task, assignees: canDo });
     }
-    taskQueue.push({ task: task, assignees: canDo });
-  }
+
+    // define constants
+    const totalWorkload = proj.getTotalWorkload();
+    const meanWorkload = totalWorkload / people.length;
+    const upperLimit = meanWorkload * 1.2;
+    const taskQueue = [];
+
+    for (const tasks of allTasks) {
+      // step 1
+      for (const task of tasks) {
+        let canDo = 0;
+        for (const person of people) {
+          if (person.canTakeTask(task, project)) {
+            canDo++;
+          }
+        }
+        taskQueue.push({ task: task, assignees: canDo });
+      }
+      // taskQueue.push({ task: task, assignees: canDo });
+    }
 
     // step 2
     taskQueue.sort((a, b) => (a.assignees <= b.assignees ? -1 : 1));
@@ -65,15 +70,16 @@ function runGreedyAlgorithm(project, numOfPriority) {
         workload: proj.getWorkloadOf(person),
       };
     });
-    const pQueue = new PriorityQueue({
-      comparator: function (a, b) {
-        return b.workload - a.workload;
-      },
-    });
-    for (const p in pArray) {
-      pQueue.queue(p);
+    const comparator = (a, b) => {
+      if (b.workload > a.workload) {
+        return 1;
+      }
+      return -1;
+    };
+    const pQueue = new PriorityQueue(comparator);
+    for (let i = 0; i < pArray.length; i++) {
+      pQueue.enqueue(pArray[i]);
     }
-
     // step 4
     const dumpsterList = [];
     for (const t of taskQueue) {
@@ -91,7 +97,7 @@ function runGreedyAlgorithm(project, numOfPriority) {
           task.setUnassigned();
           unassigned = false;
           lowest.workload += task.getTimeNeeded();
-          pQueue.queue(lowest);
+          pQueue.enqueue(lowest);
         } else {
           unavailableP.push(lowest);
         }
@@ -100,7 +106,7 @@ function runGreedyAlgorithm(project, numOfPriority) {
         dumpsterList.push(task);
       }
       for (const p in unavailableP) {
-        pQueue.queue(p);
+        pQueue.enqueue(p);
       }
     }
 
@@ -111,11 +117,133 @@ function runGreedyAlgorithm(project, numOfPriority) {
       task.assignTo(lowest.person);
       task.setUnassigned();
       lowest.workload += task.getTimeNeeded();
-      pQueue.queue(lowest);
+      pQueue.enqueue(lowest);
     }
-  }
-  return proj;
-}
+    return proj;
+  },
+};
 
-module.exports = runGreedyAlgorithm;
+// local test case
+// let projJSONable = {
+//   id: 8,
+//   name: "project by nicbot",
+//   people: [
+//     {
+//       id: 2,
+//       name: "nikele",
+//       avails: [],
+//       role: "viewer",
+//     },
+//     {
+//       id: 3,
+//       name: "nikele2",
+//       avails: [],
+//       role: "viewer",
+//     },
+//     {
+//       id: 4,
+//       name: "nicbot",
+//       avails: [],
+//       role: "owner",
+//     },
+//   ],
+//   taskGroups: [
+//     {
+//       id: 18,
+//       name: "nicbot tasks for 3",
+//       tasks: [
+//         {
+//           task_id: 80,
+//           interval:
+//             "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
+//           user_id: "4",
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 18,
+//           isAssigned: true,
+//         },
+//         {
+//           task_id: 81,
+//           interval:
+//             "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
+//           user_id: "2",
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 18,
+//           isAssigned: true,
+//         },
+//         {
+//           task_id: 82,
+//           interval:
+//             "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
+//           user_id: "3",
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 18,
+//           isAssigned: true,
+//         },
+//       ],
+//       pax: 3,
+//     },
+//     {
+//       id: 21,
+//       name: "nicbot tasks for 4",
+//       tasks: [
+//         {
+//           task_id: 99,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+//           user_id: "2",
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 21,
+//           isAssigned: true,
+//         },
+//         {
+//           task_id: 100,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+//           user_id: "3",
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 21,
+//           isAssigned: true,
+//         },
+//         {
+//           task_id: 101,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+//           user_id: "4",
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 21,
+//           isAssigned: true,
+//         },
+//         {
+//           task_id: 102,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+//           user_id: null,
+//           isCompleted: false,
+//           proj_id: "8",
+//           task_priority: 0,
+//           group_id: 21,
+//           isAssigned: false,
+//         },
+//       ],
+//       pax: 4,
+//     },
+//   ],
+// };
 
+// const project = Project.fromJSONable(projJSONable);
+// // console.log(project);
+// const priority = 4;
+// module.exports.runGreedyAlgorithm(project, priority);
+// console.log(JSON.stringify(project.toJSONable()));
