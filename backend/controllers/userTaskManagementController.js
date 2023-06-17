@@ -131,9 +131,6 @@ const PUTTaskGroupUser = async (req, res, next) => {
     // add task id to idarray
     .then((result) => {
       result.map((x) => id_array.push(x.task_id));
-      // for (let i = 0; i < result.length; i++) {
-      //   id_array.push(result[i].task_id);
-      // }
     })
     .then(() => {
       return res.status(201).json({
@@ -253,9 +250,6 @@ const PATCHTaskGroupUser = async (req, res, next) => {
     // add task id to idarray
     .then((result) => {
       result.map((x) => id_array.push(x.task_id));
-      // for (let i = 0; i < result.length; i++) {
-      //   id_array.push(result[i].task_id);
-      // }
     })
     .then(() => {
       return res.status(201).json({
