@@ -21,6 +21,7 @@ const {
   TaskGroupTask,
 } = require("./../models/relations");
 
+// not done yet
 const getProjsUser = async (req, res, next) => {
   const { user_id } = req.body;
   if (!user_id) {
@@ -77,25 +78,26 @@ const PUTProjectUser = async (req, res, next) => {
   // add create project logic
   const newProj = await Project.create({
     project_name: proj_name,
-  })
-    .then((result) => {
-      return PersonProject.create({
-        project_name: proj_name,
-        user_id: user_id,
-        permission: "owner",
-        project_id: result.project_id,
+  }).then((result) => {
+    PersonProject.create({
+      project_name: proj_name,
+      user_id: user_id,
+      permission: "owner",
+      project_id: result.project_id,
+      // availability_start: "2023-06-12 08:05:45.000000",
+      // availability_end: "2023-06-12 08:05:45.000000",
+    })
+      .then(() => {
+        console.log("project created successfully");
+        return res
+          .status(201)
+          .json({ success: "project created!", proj_id: result.project_id });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(401).json({ error: "project creation failed" });
       });
-    })
-    .then(() => {
-      // console.log("project created successfully");
-      return res
-        .status(201)
-        .json({ success: "project created!", proj_id: result.project_id });
-    })
-    .catch((err) => {
-      // console.log(err);
-      return res.status(401).json({ error: "project creation failed" });
-    });
+  });
 };
 
 const PATCHProjectUser = async (req, res, next) => {
@@ -114,20 +116,12 @@ const PATCHProjectUser = async (req, res, next) => {
     { project_name: proj_name },
     { where: { project_id: proj_id } }
   ).then(() => {
-    return res
-      .status(201)
-      .json({
-        success: `project name changed successfully to ${proj_name}!`,
-      })
-      .catch((err) => {
-        return res
-          .status(401)
-          .json({ error: "project name not changed correctly" });
-      });
+    return res.status(201).json({
+      success: `project name changed successfully to ${proj_name}!`,
+    });
   });
 };
 
-// returns a projectJSONable
 const POSTProjectUser = async (req, res, next) => {
   const { user_id, proj_id } = req.body;
   if (!user_id || !proj_id) {
@@ -155,14 +149,13 @@ const POSTProjectUser = async (req, res, next) => {
   const taskGroupIds = ProjectTaskGroup.findAll({
     where: { project_id: proj_id },
   }).then((x) => x.map((y) => y.group_id));
-  // taskGroups is a promise array of taskgroups
+  // taskGroups is promise array of taskgroups
   const taskGroups = taskGroupIds.then((idarr) =>
     TaskGroup.findAll({
       where: { group_id: idarr },
     })
   );
 
-  // taskIds is a promise array of task IDs
   const taskIds = taskGroupIds
     .then((idarr) =>
       TaskGroupTask.findAll({
@@ -171,13 +164,12 @@ const POSTProjectUser = async (req, res, next) => {
     )
     .then((x) => x.map((y) => y.task_id));
 
-  // tasks is a promise array of tasks
   const tasks = taskIds.then((idarr) =>
     Task.findAll({
       where: { task_id: idarr },
     })
   );
-  //userRows is a promise array of objects with user-project relationships
+
   const userRows = PersonProject.findAll({
     where: { project_id: proj_id },
   });
@@ -234,9 +226,11 @@ const POSTProjectUser = async (req, res, next) => {
           tgo.pax
         );
       });
-      return res.status(201).json({
-        project: new ProjectJSONable(proj_id, projName, outPeople, outTGs),
-      });
+      return res
+        .status(201)
+        .json({
+          project: new ProjectJSONable(proj_id, projName, outPeople, outTGs),
+        });
     })
     .catch((err) => {
       console.log(err);
@@ -276,12 +270,9 @@ const DELETEProjectUser = async (req, res, next) => {
   );
   Promise.all(taskgrppromisearr)
     .then(async (result) => {
-      await TaskGroup.destroy({
-        where: { group_id: result.map((x) => x.group_id) },
-      });
-      // for (let i = 0; i < result.length; i++) {
-      //   await TaskGroup.destroy({ where: { group_id: result[i].group_id } });
-      // }
+      for (let i = 0; i < result.length; i++) {
+        await TaskGroup.destroy({ where: { group_id: result[i].group_id } });
+      }
     })
     .catch(() =>
       res
@@ -299,10 +290,9 @@ const DELETEProjectUser = async (req, res, next) => {
   // deleting all tasks in project
   Promise.all(taskpromisearr)
     .then(async (result) => {
-      await Task.destroy({ where: { task_id: result.map((x) => x.task_id) } });
-      // for (let i = 0; i < result.length; i++) {
-      //   await Task.destroy({ where: { task_id: result[i].task_id } });
-      // }
+      for (let i = 0; i < result.length; i++) {
+        await Task.destroy({ where: { task_id: result[i].task_id } });
+      }
     })
     .catch(() =>
       res.status(401).json({ error: "failed to delete tasks within project" })

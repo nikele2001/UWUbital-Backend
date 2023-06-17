@@ -8,17 +8,17 @@ const Algo = require("./../algorithm/greedy-algo1");
 
 // return a project: projectJSONable
 const runUser = async (req, res, next) => {
-  const { projectJSONable } = req.body;
-  if (!projectJSONable) {
+  const { project } = req.body;
+  if (!project) {
     return res
       .status(403)
       .json({ error: "projectJSONable is required to run algorithm!" });
   }
-  const project = Project.fromJSONable(projectJSONable);
+  const projectobj = Project.fromJSONable(project);
 
   return res.status(201).json({
     success: "algorithm has completed execution",
-    projectJSONable: Algo.runGreedyAlgorithm(project, 3).toJSONable(),
+    projectJSONable: Algo.runGreedyAlgorithm(projectobj, 3).toJSONable(),
   });
 };
 

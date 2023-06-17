@@ -124,126 +124,126 @@ module.exports = {
 };
 
 // local test case
-// let projJSONable = {
-//   id: 8,
-//   name: "project by nicbot",
-//   people: [
-//     {
-//       id: 2,
-//       name: "nikele",
-//       avails: [],
-//       role: "viewer",
-//     },
-//     {
-//       id: 3,
-//       name: "nikele2",
-//       avails: [],
-//       role: "viewer",
-//     },
-//     {
-//       id: 4,
-//       name: "nicbot",
-//       avails: [],
-//       role: "owner",
-//     },
-//   ],
-//   taskGroups: [
-//     {
-//       id: 18,
-//       name: "nicbot tasks for 3",
-//       tasks: [
-//         {
-//           task_id: 80,
-//           interval:
-//             "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
-//           user_id: "4",
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 18,
-//           isAssigned: true,
-//         },
-//         {
-//           task_id: 81,
-//           interval:
-//             "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
-//           user_id: "2",
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 18,
-//           isAssigned: true,
-//         },
-//         {
-//           task_id: 82,
-//           interval:
-//             "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
-//           user_id: "3",
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 18,
-//           isAssigned: true,
-//         },
-//       ],
-//       pax: 3,
-//     },
-//     {
-//       id: 21,
-//       name: "nicbot tasks for 4",
-//       tasks: [
-//         {
-//           task_id: 99,
-//           interval:
-//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-//           user_id: "2",
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 21,
-//           isAssigned: true,
-//         },
-//         {
-//           task_id: 100,
-//           interval:
-//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-//           user_id: "3",
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 21,
-//           isAssigned: true,
-//         },
-//         {
-//           task_id: 101,
-//           interval:
-//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-//           user_id: "4",
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 21,
-//           isAssigned: true,
-//         },
-//         {
-//           task_id: 102,
-//           interval:
-//             "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-//           user_id: null,
-//           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 21,
-//           isAssigned: false,
-//         },
-//       ],
-//       pax: 4,
-//     },
-//   ],
-// };
+let projJSONable = {
+  id: 8,
+  name: "project by nicbot",
+  people: [
+    {
+      id: 2,
+      name: "nikele",
+      avails: [],
+      role: "viewer",
+    },
+    {
+      id: 3,
+      name: "nikele2",
+      avails: [],
+      role: "viewer",
+    },
+    {
+      id: 4,
+      name: "nicbot",
+      avails: [],
+      role: "owner",
+    },
+  ],
+  taskGroups: [
+    {
+      id: 18,
+      name: "nicbot tasks for 3",
+      tasks: [
+        {
+          task_id: 80,
+          interval:
+            "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
+          user_id: "4",
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 18,
+          isAssigned: true,
+        },
+        {
+          task_id: 81,
+          interval:
+            "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
+          user_id: "2",
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 18,
+          isAssigned: true,
+        },
+        {
+          task_id: 82,
+          interval:
+            "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
+          user_id: "3",
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 18,
+          isAssigned: true,
+        },
+      ],
+      pax: 3,
+    },
+    {
+      id: 21,
+      name: "nicbot tasks for 4",
+      tasks: [
+        {
+          task_id: 99,
+          interval:
+            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+          user_id: "2",
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 21,
+          isAssigned: true,
+        },
+        {
+          task_id: 100,
+          interval:
+            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+          user_id: "3",
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 21,
+          isAssigned: true,
+        },
+        {
+          task_id: 101,
+          interval:
+            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+          user_id: "4",
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 21,
+          isAssigned: true,
+        },
+        {
+          task_id: 102,
+          interval:
+            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
+          user_id: null,
+          isCompleted: false,
+          proj_id: "8",
+          task_priority: 0,
+          group_id: 21,
+          isAssigned: false,
+        },
+      ],
+      pax: 4,
+    },
+  ],
+};
 
-// const project = Project.fromJSONable(projJSONable);
-// // console.log(project);
-// const priority = 4;
-// module.exports.runGreedyAlgorithm(project, priority);
-// console.log(JSON.stringify(project.toJSONable()));
+const project = Project.fromJSONable(projJSONable);
+// console.log(project);
+const priority = 4;
+module.exports.runGreedyAlgorithm(project, priority);
+console.log(JSON.stringify(project.toJSONable()));
