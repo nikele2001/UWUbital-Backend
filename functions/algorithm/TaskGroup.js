@@ -41,29 +41,6 @@ class TaskGroup {
     }
     return new TaskGroup(this.id, this.name, outTasks, this.pax);
   }
-  getTotalWorkload() {
-    let out = 0;
-    for (const task of this.tasks) {
-      out += task.getTimeNeeded();
-    }
-    return out;
-  }
-  createCopy() {
-    const outTasks = [];
-    for (let i = 0; i < this.tasks.length; i++) {
-      outTasks[i] = this.tasks[i].createCopy();
-    }
-    return new TaskGroup(this.id, this.name, outTasks, this.pax, this.priority);
-  }
-  getWorkloadOf(person) {
-    let out = 0;
-    for (const task of this.tasks) {
-      if (task.isAssignedTo(person)) {
-        out += task.getTimeNeeded();
-      }
-    }
-    return out;
-  }
 }
 
 module.exports = { TaskGroup };

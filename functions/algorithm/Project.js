@@ -43,32 +43,7 @@ class Project {
       peopleCopy[i] = Person.fromJSONable(proj.people[i]);
     }
     for (let i = 0; i < proj.taskGroups.length; i++) {
-      taskCopy[i] = TaskGroup.fromJSONable(proj.taskGroups[i]);
-    }
-    return new Project(this.id, this.name, peopleCopy, taskCopy);
-  }
-  getTotalWorkload() {
-    let out = 0;
-    for (const tg of this.taskGroups) {
-      out += tg.getTotalWorkload();
-    }
-    return out;
-  }
-  getWorkloadOf(person) {
-    let out = 0;
-    for (const tg of this.taskGroups) {
-      out += tg.getWorkloadOf(person);
-    }
-    return out;
-  }
-  createCopy() {
-    const peopleCopy = [];
-    const taskCopy = [];
-    for (let i = 0; i < this.people.length; i++) {
-      peopleCopy[i] = this.people[i].createCopy();
-    }
-    for (let i = 0; i < this.taskGroups.length; i++) {
-      taskCopy[i] = this.taskGroups[i].createCopy();
+      taskCopy[i] = TaskGroup.fromJSONable(proj.tasks[i]);
     }
     return new Project(this.id, this.name, peopleCopy, taskCopy);
   }

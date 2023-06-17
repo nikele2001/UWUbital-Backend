@@ -20,6 +20,7 @@ function runGreedyAlgorithm(project, numOfPriority) {
         is available or not.
     */
 
+
   const proj = project.createCopy();
   const people = proj.people;
 
@@ -51,6 +52,8 @@ function runGreedyAlgorithm(project, numOfPriority) {
       }
       taskQueue.push({ task: task, assignees: canDo });
     }
+    taskQueue.push({ task: task, assignees: canDo });
+  }
 
     // step 2
     taskQueue.sort((a, b) => (a.assignees <= b.assignees ? -1 : 1));
@@ -115,3 +118,4 @@ function runGreedyAlgorithm(project, numOfPriority) {
 }
 
 module.exports = runGreedyAlgorithm;
+

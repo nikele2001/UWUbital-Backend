@@ -1,22 +1,19 @@
-const mongoose = require("mongoose");
+const { Sequelize, Model, DataTypes } = require("sequelize");
 
-// schema for data query
-// const Schema = mongoose.Schema;
-const { Schema, model } = mongoose;
-const projectsschema = new Schema({
-  username: {
-    type: String,
-    required: true,
+const sequelize = require("../util/database");
+
+const Project = sequelize.define("projects_table", {
+  project_id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
     unique: true,
   },
-  projectlist: {
-    type: [String],
+  project_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
 });
 
-// model creation for CRUD operation
-// note that data will be in the user_authentications collection unless third
-// parameter is passed into the model() function
-const Projects = model("projects", projectsschema, "projects");
-
-module.exports = Projects;
+module.exports = Project;
