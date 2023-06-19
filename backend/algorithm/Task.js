@@ -2,31 +2,31 @@ const { DateTime, Interval } = require("luxon");
 const { TaskJSONable } = require("./TaskJSONable");
 
 class Task {
-  // task_id is a number
+  // taskId is a number
   // interval is a Luxon Interval
-  // user_id is a number
+  // personId is a number
   // completed is a boolean
-  // proj_id is a number
-  // task_priority is a number
-  // group_id is a number
+  // projectId is a number
+  // taskPriority is a number
+  // taskGroupId is a number
   // isAssigned is a boolean
   constructor(
-    task_id,
+    taskId,
     interval,
-    user_id,
+    personId,
     isCompleted,
-    proj_id,
-    task_priority,
-    group_id,
+    projectId,
+    taskPriority,
+    taskGroupId,
     isAssigned
   ) {
-    this.task_id = task_id;
+    this.taskId = taskId;
     this.interval = interval;
-    this.user_id = user_id;
+    this.personId = personId;
     this.isCompleted = isCompleted;
-    this.proj_id = proj_id;
-    this.task_priority = task_priority;
-    this.group_id = group_id;
+    this.projectId = projectId;
+    this.taskPriority = taskPriority;
+    this.taskGroupId = taskGroupId;
     this.isAssigned = isAssigned;
   }
   getIntervalString() {
@@ -42,44 +42,44 @@ class Task {
     var out = "Task: \n";
     out += "Interval: " + this.getIntervalString() + "\n";
     out += "Time needed: " + this.getTimeNeeded() + "\n";
-    out += "Assigned to: " + this.user_id + "\n";
+    out += "Assigned to: " + this.personId + "\n";
     return out;
   }
   toJSONable() {
     const outInterval = this.interval.toISO({ suppressSeconds: true });
     return new TaskJSONable(
-      this.task_id,
+      this.taskId,
       outInterval,
-      this.user_id,
+      this.personId,
       this.completed,
-      this.proj_id,
-      this.task_priority,
-      this.group_id,
+      this.projectId,
+      this.taskPriority,
+      this.taskGroupId,
       this.isAssigned
     );
   }
   static fromJSONable(object) {
     const outInterval = Interval.fromISO(object.interval);
     return new Task(
-      object.task_id,
+      object.taskId,
       outInterval,
-      object.user_id,
+      object.personId,
       object.completed,
-      object.proj_id,
-      object.task_priority,
-      object.group_id,
+      object.projectId,
+      object.taskPriority,
+      object.taskGroupId,
       object.isAssigned
     );
   }
   createCopy() {
     return new Task(
-      this.task_id,
+      this.taskId,
       this.interval,
-      this.user_id,
+      this.personId,
       this.completed,
-      this.proj_id,
-      this.task_priority,
-      this.group_id,
+      this.projectId,
+      this.taskPriority,
+      this.taskGroupId,
       this.isAssigned
     );
   }
@@ -87,10 +87,10 @@ class Task {
     return this.interval.overlaps(other.interval);
   }
   isAssignedTo(person) {
-    return this.user_id === person.getId();
+    return this.personId === person.getId();
   }
   assignTo(person) {
-    this.user_id = person.getId();
+    this.personId = person.getId();
   }
   setUnassigned() {
     this.isAssigned = false;

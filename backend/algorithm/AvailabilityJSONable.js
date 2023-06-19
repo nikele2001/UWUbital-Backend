@@ -1,13 +1,13 @@
 class AvailabilityJSONable {
-    // id is a number
-    // interval is an ISO string
-    constructor(id, interval) {
-      this.id = id;
-      this.interval = interval;
-    }
-    toString() {
-      return this.interval;
-    }
+  // availabilityId is a number
+  // interval is an ISO string
+  constructor(availabilityId, interval) {
+    this.availabilityId = availabilityId;
+    this.interval = interval;
+  }
+  toString() {
+    return this.interval;
+  }
 }
- 
-module.exports = {AvailabilityJSONable};
+
+module.exports = { AvailabilityJSONable };

@@ -5,7 +5,7 @@ const Sequelize = require("sequelize");
 const { TaskGroupJSONable } = require("./../algorithm/TaskGroupJSONable");
 const { TaskJSONable } = require("./../algorithm/TaskJSONable");
 const { Person: PersonO } = require("./../algorithm/Person");
-const { PersonJSONable } = require("./../algorithm/PersonJSONable");
+const { PersonJSONable } = require("./../algorithm/personJSONable");
 const { Project: ProjectO } = require("./../algorithm/Project");
 const { ProjectJSONable } = require("./../algorithm/ProjectJSONable");
 const Person = require("./../models/people");
@@ -23,8 +23,8 @@ const {
 
 // not done yet
 const getProjsUser = async (req, res, next) => {
-  const { user_id } = req.body;
-  if (!user_id) {
+  const { personId } = req.body;
+  if (!personId) {
     return res.status(403).json({
       error: "user_id is required for getting your projects!",
     });
@@ -36,7 +36,7 @@ const getProjsUser = async (req, res, next) => {
         [Sequelize.fn("DISTINCT", Sequelize.col("project_id")), "project_id"],
         "permission",
       ],
-      where: { user_id: user_id },
+      where: { user_id: personId },
     });
     const projIds = projOS.then((x) => x.map((y) => y.project_id));
     // {project_name, project_id}
@@ -52,13 +52,13 @@ const getProjsUser = async (req, res, next) => {
         .filter((x) => x.permission === "owner")
         .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0])
         .map((x) => {
-          return { proj_name: x.project_name, proj_id: x.project_id };
+          return { projectName: x.project_name, projectId: x.project_id };
         });
       const unowned = projOS
         .filter((x) => x.permission !== "owner")
         .map((x) => projOS2.filter((y) => y.project_id === x.project_id)[0])
         .map((x) => {
-          return { proj_name: x.project_name, proj_id: x.project_id };
+          return { projectName: x.project_name, projectId: x.project_id };
         });
       return { owned: owned, unowned: unowned };
     });
@@ -69,19 +69,19 @@ const getProjsUser = async (req, res, next) => {
 };
 
 const PUTProjectUser = async (req, res, next) => {
-  const { user_id, proj_name } = req.body;
-  if (!user_id || !proj_name) {
+  const { personId, projectName } = req.body;
+  if (!personId || !projectName) {
     return res.status(403).json({
       error: "username and project name are required for creating new project",
     });
   }
   // add create project logic
   const newProj = await Project.create({
-    project_name: proj_name,
+    project_name: projectName,
   }).then((result) => {
     PersonProject.create({
-      project_name: proj_name,
-      user_id: user_id,
+      project_name: projectName,
+      user_id: personId,
       permission: "owner",
       project_id: result.project_id,
       // availability_start: "2023-06-12 08:05:45.000000",
@@ -91,7 +91,7 @@ const PUTProjectUser = async (req, res, next) => {
         console.log("project created successfully");
         return res
           .status(201)
-          .json({ success: "project created!", proj_id: result.project_id });
+          .json({ success: "project created!", projectId: result.project_id });
       })
       .catch((err) => {
         console.log(err);
@@ -101,44 +101,44 @@ const PUTProjectUser = async (req, res, next) => {
 };
 
 const PATCHProjectUser = async (req, res, next) => {
-  const { proj_id, proj_name } = req.body;
-  if (!proj_id || !proj_name) {
+  const { projectId, projectName } = req.body;
+  if (!projectId || !projectName) {
     return res.status(403).json({
       error: "username and project name are required for editing project name",
     });
   }
   // add edit project name logic
-  let project = await Project.findOne({ where: { project_id: proj_id } });
+  let project = await Project.findOne({ where: { project_id: projectId } });
   if (!project) {
     return res.status(404).json({ error: "Project not found" });
   }
   Project.update(
-    { project_name: proj_name },
-    { where: { project_id: proj_id } }
+    { project_name: projectName },
+    { where: { project_id: projectId } }
   ).then(() => {
     return res.status(201).json({
-      success: `project name changed successfully to ${proj_name}!`,
+      success: `project name changed successfully to ${projectName}!`,
     });
   });
 };
 
 const POSTProjectUser = async (req, res, next) => {
-  const { user_id, proj_id } = req.body;
-  if (!user_id || !proj_id) {
+  const { personId, projectId } = req.body;
+  if (!personId || !projectId) {
     return res.status(403).json({
       error: "user id and project id are required for getting project details",
     });
   }
   // check if project exists
-  const proj = await Project.findOne({ where: { project_id: proj_id } });
+  const proj = await Project.findOne({ where: { project_id: projectId } });
   if (proj === null) {
     return res.status(404).json({ error: "project not found" });
   }
   // check if user has viewing rights (PersonProject)
   const user = await PersonProject.findOne({
     where: {
-      user_id: user_id,
-      project_id: proj_id,
+      user_id: personId,
+      project_id: projectId,
     },
   });
 
@@ -147,7 +147,7 @@ const POSTProjectUser = async (req, res, next) => {
   }
   // get promise array of task group ids that belong to the project (ProjectTaskGroup)
   const taskGroupIds = ProjectTaskGroup.findAll({
-    where: { project_id: proj_id },
+    where: { project_id: projectId },
   }).then((x) => x.map((y) => y.group_id));
   // taskGroups is promise array of taskgroups
   const taskGroups = taskGroupIds.then((idarr) =>
@@ -171,7 +171,7 @@ const POSTProjectUser = async (req, res, next) => {
   );
 
   const userRows = PersonProject.findAll({
-    where: { project_id: proj_id },
+    where: { project_id: projectId },
   });
 
   const userIds = userRows.then((x) => x.map((y) => y.user_id));
@@ -183,7 +183,7 @@ const POSTProjectUser = async (req, res, next) => {
   );
 
   const projName = Project.findOne({
-    where: { project_id: proj_id },
+    where: { project_id: projectId },
   }).then((x) => x.project_name);
 
   return await Promise.all([taskGroups, tasks, users, projName, userRows])
@@ -226,11 +226,9 @@ const POSTProjectUser = async (req, res, next) => {
           tgo.pax
         );
       });
-      return res
-        .status(201)
-        .json({
-          project: new ProjectJSONable(proj_id, projName, outPeople, outTGs),
-        });
+      return res.status(201).json({
+        project: new ProjectJSONable(projectId, projName, outPeople, outTGs),
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -242,15 +240,15 @@ const POSTProjectUser = async (req, res, next) => {
 };
 
 const DELETEProjectUser = async (req, res, next) => {
-  const { user_id, proj_id } = req.body;
-  if (!user_id || !proj_id) {
+  const { personId, projectId } = req.body;
+  if (!personId || !projectId) {
     return res.status(403).json({
       error: "user id and project id are required for deleting project",
     });
   }
 
   const user = await PersonProject.findOne({
-    where: { user_id: user_id, project_id: proj_id },
+    where: { user_id: personId, project_id: projectId },
   });
   if (!user) {
     return res.status(404).json({ error: "user not found" });
@@ -263,7 +261,7 @@ const DELETEProjectUser = async (req, res, next) => {
 
   // deleting all task groups in project
   let taskgrppromisearr = await ProjectTaskGroup.findAll({
-    where: { project_id: proj_id },
+    where: { project_id: projectId },
   });
   taskgrppromisearr = taskgrppromisearr.map(
     (x) => new Promise((resolve, reject) => resolve(x))
@@ -281,7 +279,7 @@ const DELETEProjectUser = async (req, res, next) => {
     );
 
   let taskpromisearr = await ProjectTask.findAll({
-    where: { project_id: proj_id },
+    where: { project_id: projectId },
   });
   taskpromisearr = taskpromisearr.map(
     (x) => new Promise((resolve, reject) => resolve(x))
@@ -299,7 +297,7 @@ const DELETEProjectUser = async (req, res, next) => {
     );
 
   // deleting the project itself
-  await Project.destroy({ where: { project_id: proj_id } })
+  await Project.destroy({ where: { project_id: projectId } })
     .then(() =>
       res.status(201).json({
         success:

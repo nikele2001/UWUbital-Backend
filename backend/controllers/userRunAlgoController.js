@@ -19,7 +19,7 @@ const runUser = async (req, res, next) => {
   try {
     proj = Project.fromJSONable(project);
   } catch (err) {
-    return res.status(401).json({ error: "project is not JSONable" });
+    return res.status(401).json({ error: err });
   }
 
   // a projectJSONable after running algorithm
