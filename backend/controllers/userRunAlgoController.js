@@ -48,7 +48,7 @@ const runUser = async (req, res, next) => {
   const taskarr = assignedTaskGroups
     .map((x) => x.tasks)
     .reduce((a, b) => a.concat(b), []);
-  // console.log(taskarr);
+  console.log(taskarr);
 
   // update personTask based on new information
   // ppltaskpromisearr is an array of promise of updates to the people tasks table
@@ -61,10 +61,19 @@ const runUser = async (req, res, next) => {
       { user_id: tmp.user_id },
       { where: { task_id: tmp.task_id } }
     );
-    taskpromisearr[i] = Task.update(
-      { Task_JSON: JSON.stringify(tmp) },
-      { where: { task_id: tmp.task_id } }
-    );
+    taskpromisearr[i] = Task.findByPk(tmp.task_id)
+      .then((result) => {
+        console.log("found");
+        return result;
+      })
+      .then((result) => {
+        result.taskJSON = JSON.stringify(tmp);
+        result.save();
+      });
+    // Task.update(
+    //   { Task_JSON: JSON.stringify(tmp) },
+    //   { where: { task_id: tmp.task_id } }
+    // );
   }
 
   console.log("updating people task group table");
