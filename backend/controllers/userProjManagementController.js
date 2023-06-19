@@ -193,7 +193,7 @@ const POSTProjectUser = async (req, res, next) => {
       // {task_JSON (string), task_id}
       const tasksStr = array[1];
       const tasks = tasksStr.map((x) => {
-        return { task_id: x.task_id, task_JSON: JSON.parse(x.task_JSON) };
+        return { taskId: x.task_id, taskJSON: JSON.parse(x.task_JSON) };
       });
       // {user_id, user_name, password_hash, jwt_token, bio}
       const users = array[2];
@@ -216,8 +216,8 @@ const POSTProjectUser = async (req, res, next) => {
       });
       const outTGs = taskGroups.map((tgo) => {
         const outTasks = tasks
-          .filter((x) => x.task_JSON.group_id === tgo.group_id)
-          .map((x) => x.task_JSON);
+          .filter((x) => x.taskJSON.groupId === tgo.group_id)
+          .map((x) => x.taskJSON);
         console.log(outTasks);
         return new TaskGroupJSONable(
           tgo.group_id,
