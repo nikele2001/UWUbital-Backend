@@ -14,7 +14,7 @@ function test(projJSON, algo, verbose) {
             + " . Output length: " + algoed.people.length + "\n");
     } 
     if (algoed.tasks.length > 0) {
-        console.log("Length of output task list is not 0. \n");
+        console.log("Length of task list is not 0. \n");
     } 
     const originalWorkload = original.getTotalWorkload();
     const algoedWorkload = algoed.getTotalWorkload();
