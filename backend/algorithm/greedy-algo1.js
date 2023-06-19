@@ -39,14 +39,13 @@ module.exports = {
         allTasks[task.task_priority].push(task);
       }
     }
-
     // define constants
     const totalWorkload = proj.getTotalWorkload();
     const meanWorkload = totalWorkload / people.length;
     const upperLimit = meanWorkload * 1.2;
-    const taskQueue = [];
 
     for (const tasks of allTasks) {
+      const taskQueue = [];
       // step 1
       for (const task of tasks) {
         let canDo = 0;
@@ -57,67 +56,64 @@ module.exports = {
         }
         taskQueue.push({ task: task, assignees: canDo });
       }
-      // taskQueue.push({ task: task, assignees: canDo });
-    }
+      // step 2
+      taskQueue.sort((a, b) => (a.assignees <= b.assignees ? -1 : 1));
 
-    // step 2
-    taskQueue.sort((a, b) => (a.assignees <= b.assignees ? -1 : 1));
-
-    // step 3
-    const pArray = people.map((person) => {
-      return {
-        person: person,
-        workload: proj.getWorkloadOf(person),
-      };
-    });
-    const comparator = (a, b) => {
-      if (b.workload > a.workload) {
+      // step 3
+      const pArray = people.map((person) => {
+        return {
+          person: person,
+          workload: proj.getWorkloadOf(person),
+        };
+      });
+      const comparator = (a, b) => {
+        if (b.workload > a.workload) {
+          return -1;
+        }
         return 1;
+      };
+      const pQueue = new PriorityQueue(comparator);
+      for (let i = 0; i < pArray.length; i++) {
+        pQueue.enqueue(pArray[i]);
       }
-      return -1;
-    };
-    const pQueue = new PriorityQueue(comparator);
-    for (let i = 0; i < pArray.length; i++) {
-      pQueue.enqueue(pArray[i]);
-    }
-    // step 4
-    const dumpsterList = [];
-    for (const t of taskQueue) {
-      const task = t.task;
-      const unavailableP = [];
-      let unassigned = true;
-      while (unassigned && pQueue.length > 0) {
-        const lowest = pQueue.dequeue();
-        if (
-          lowest.person.canTakeTask(task) &&
-          lowest.workload <= meanWorkload &&
-          lowest.workload + task.getTimeNeeded() <= upperLimit
-        ) {
-          task.assignTo(lowest.person);
-          task.setUnassigned();
-          unassigned = false;
-          lowest.workload += task.getTimeNeeded();
-          pQueue.enqueue(lowest);
-        } else {
-          unavailableP.push(lowest);
+      // step 4
+      const dumpsterList = [];
+      for (const t of taskQueue) {
+        const task = t.task;
+        const unavailableP = [];
+        let unassigned = true;
+        while (unassigned && pQueue.length > 0) {
+          const lowest = pQueue.dequeue();
+          if (
+            lowest.person.canTakeTask(task) &&
+            lowest.workload <= meanWorkload &&
+            lowest.workload + task.getTimeNeeded() <= upperLimit
+          ) {
+            task.assignTo(lowest.person);
+            task.setUnassigned();
+            unassigned = false;
+            lowest.workload += task.getTimeNeeded();
+            pQueue.enqueue(lowest);
+          } else {
+            unavailableP.push(lowest);
+          }
+        }
+        if (unassigned) {
+          dumpsterList.push(task);
+        }
+        for (const p in unavailableP) {
+          pQueue.enqueue(p);
         }
       }
-      if (unassigned) {
-        dumpsterList.push(task);
+      // step 5
+      dumpsterList.sort((a, b) => a.getTimeNeeded() - b.getTimeNeeded());
+      for (const task of dumpsterList) {
+        const lowest = pQueue.dequeue();
+        task.assignTo(lowest.person);
+        task.setUnassigned();
+        lowest.workload += task.getTimeNeeded();
+        pQueue.enqueue(lowest);
       }
-      for (const p in unavailableP) {
-        pQueue.enqueue(p);
-      }
-    }
-
-    // step 5
-    dumpsterList.sort((a, b) => a.getTimeNeeded() - b.getTimeNeeded());
-    for (const task of dumpsterList) {
-      const lowest = pQueue.dequeue();
-      task.assignTo(lowest.person);
-      task.setUnassigned();
-      lowest.workload += task.getTimeNeeded();
-      pQueue.enqueue(lowest);
     }
     return proj;
   },
@@ -155,8 +151,8 @@ let projJSONable = {
         {
           task_id: 80,
           interval:
-            "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
-          user_id: "4",
+            "2023-06-17T00:30:38.835+08:00/2023-06-17T01:30:38.835+08:00",
+          user_id: null,
           isCompleted: false,
           proj_id: "8",
           task_priority: 0,
@@ -166,8 +162,8 @@ let projJSONable = {
         {
           task_id: 81,
           interval:
-            "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
-          user_id: "2",
+            "2023-06-17T00:30:38.835+08:00/2023-06-17T01:30:38.835+08:00",
+          user_id: null,
           isCompleted: false,
           proj_id: "8",
           task_priority: 0,
@@ -177,8 +173,8 @@ let projJSONable = {
         {
           task_id: 82,
           interval:
-            "2023-06-17T00:30:38.835+08:00/2023-06-17T00:30:38.835+08:00",
-          user_id: "3",
+            "2023-06-17T00:30:38.835+08:00/2023-06-17T01:30:38.835+08:00",
+          user_id: null,
           isCompleted: false,
           proj_id: "8",
           task_priority: 0,
@@ -188,62 +184,63 @@ let projJSONable = {
       ],
       pax: 3,
     },
-    {
-      id: 21,
-      name: "nicbot tasks for 4",
-      tasks: [
-        {
-          task_id: 99,
-          interval:
-            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-          user_id: "2",
-          isCompleted: false,
-          proj_id: "8",
-          task_priority: 0,
-          group_id: 21,
-          isAssigned: true,
-        },
-        {
-          task_id: 100,
-          interval:
-            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-          user_id: "3",
-          isCompleted: false,
-          proj_id: "8",
-          task_priority: 0,
-          group_id: 21,
-          isAssigned: true,
-        },
-        {
-          task_id: 101,
-          interval:
-            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-          user_id: "4",
-          isCompleted: false,
-          proj_id: "8",
-          task_priority: 0,
-          group_id: 21,
-          isAssigned: true,
-        },
-        {
-          task_id: 102,
-          interval:
-            "2023-06-17T00:57:51.635+08:00/2023-06-17T00:57:51.635+08:00",
-          user_id: null,
-          isCompleted: false,
-          proj_id: "8",
-          task_priority: 0,
-          group_id: 21,
-          isAssigned: false,
-        },
-      ],
-      pax: 4,
-    },
+    // {
+    //   id: 21,
+    //   name: "nicbot tasks for 4",
+    //   tasks: [
+    //     {
+    //       task_id: 99,
+    //       interval:
+    //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+    //       user_id: "2",
+    //       isCompleted: false,
+    //       proj_id: "8",
+    //       task_priority: 0,
+    //       group_id: 21,
+    //       isAssigned: true,
+    //     },
+    //     {
+    //       task_id: 100,
+    //       interval:
+    //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+    //       user_id: "3",
+    //       isCompleted: false,
+    //       proj_id: "8",
+    //       task_priority: 0,
+    //       group_id: 21,
+    //       isAssigned: true,
+    //     },
+    //     {
+    //       task_id: 101,
+    //       interval:
+    //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+    //       user_id: "4",
+    //       isCompleted: false,
+    //       proj_id: "8",
+    //       task_priority: 0,
+    //       group_id: 21,
+    //       isAssigned: true,
+    //     },
+    //     {
+    //       task_id: 102,
+    //       interval:
+    //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+    //       user_id: null,
+    //       isCompleted: false,
+    //       proj_id: "8",
+    //       task_priority: 0,
+    //       group_id: 21,
+    //       isAssigned: false,
+    //     },
+    //   ],
+    //   pax: 4,
+    // },
   ],
 };
 
 const project = Project.fromJSONable(projJSONable);
 // console.log(project);
-const priority = 4;
+const priority = 3;
 module.exports.runGreedyAlgorithm(project, priority);
-console.log(JSON.stringify(project.toJSONable()));
+const result = module.exports.runGreedyAlgorithm(project, priority).toString();
+console.log(result)

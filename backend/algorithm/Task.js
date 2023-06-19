@@ -39,9 +39,10 @@ class Task {
     return Math.round(this.interval.toDuration("minutes").toObject().minutes);
   }
   toString() {
-    var out = "Task: " + this.name + "\n";
-    out += "Interval: " + this.getInterval() + "\n";
+    var out = "Task: \n";
+    out += "Interval: " + this.getIntervalString() + "\n";
     out += "Time needed: " + this.getTimeNeeded() + "\n";
+    out += "Assigned to: " + this.user_id + "\n";
     return out;
   }
   toJSONable() {
