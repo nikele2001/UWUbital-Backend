@@ -145,7 +145,7 @@ module.exports = {
 //   ],
 //   taskGroups: [
 //     {
-//       groupId: 18,
+//       taskGroupId: 18,
 //       taskGroupName: "nicbot tasks for 3",
 //       tasks: [
 //         {
@@ -156,7 +156,7 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 18,
+//           taskGroupId: 18,
 //           isAssigned: true,
 //         },
 //         {
@@ -167,7 +167,7 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 18,
+//           taskGroupId: 18,
 //           isAssigned: true,
 //         },
 //         {
@@ -178,14 +178,14 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 18,
+//           taskGroupId: 18,
 //           isAssigned: true,
 //         },
 //       ],
 //       pax: 3,
 //     },
 //     {
-//       groupId: 21,
+//       taskGroupId: 21,
 //       taskGroupName: "nicbot tasks for 4",
 //       tasks: [
 //         {
@@ -196,7 +196,7 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 21,
+//           taskGroupId: 21,
 //           isAssigned: true,
 //         },
 //         {
@@ -207,7 +207,7 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 21,
+//           taskGroupId: 21,
 //           isAssigned: true,
 //         },
 //         {
@@ -218,7 +218,7 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 21,
+//           taskGroupId: 21,
 //           isAssigned: true,
 //         },
 //         {
@@ -229,7 +229,7 @@ module.exports = {
 //           isCompleted: false,
 //           projectId: "8",
 //           taskPriority: 0,
-//           groupId: 21,
+//           taskGroupId: 21,
 //           isAssigned: false,
 //         },
 //       ],

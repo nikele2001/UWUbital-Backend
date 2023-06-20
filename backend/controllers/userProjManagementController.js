@@ -216,7 +216,7 @@ const POSTProjectUser = async (req, res, next) => {
       });
       const outTGs = taskGroups.map((tgo) => {
         const outTasks = tasks
-          .filter((x) => x.taskJSON.groupId === tgo.group_id)
+          .filter((x) => x.taskJSON.taskGroupId === tgo.group_id)
           .map((x) => x.taskJSON);
         console.log(outTasks);
         return new TaskGroupJSONable(
@@ -290,6 +290,7 @@ const DELETEProjectUser = async (req, res, next) => {
     .then(async (result) => {
       for (let i = 0; i < result.length; i++) {
         await Task.destroy({ where: { task_id: result[i].task_id } });
+        console.log("delete success");
       }
     })
     .catch(() =>

@@ -91,11 +91,11 @@ const getMyTasksUser = async (req, res, next) => {
         console.log(taskGroups);
         console.log(tc);
         const tg = taskGroups.filter(
-          (x) => Number(x.group_id) === Number(tc.groupId)
+          (x) => Number(x.group_id) === Number(tc.taskGroupId)
         )[0];
         console.log(tg);
         const tgCopy = {
-          groupId: tg.group_id,
+          taskGroupId: tg.group_id,
           taskGroupName: tg.task_group_name,
           tasks: [tc],
           pax: tg.pax,

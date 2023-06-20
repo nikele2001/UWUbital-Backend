@@ -45,7 +45,7 @@ const runUser = async (req, res, next) => {
     for (let j = 0; j < tmp.personIdArr.length; j++) {
       ppltgpromisearr[i][j] = PersonTaskGroup.findOrCreate({
         where: {
-          group_id: tmp.groupId,
+          group_id: tmp.taskGroupId,
           user_id: tmp.personIdArr[j],
         },
       });

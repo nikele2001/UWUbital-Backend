@@ -5,7 +5,7 @@ class TaskJSONable {
   // isCompleted is a boolean
   // projectId is a number
   // taskPriority is a number
-  // groupId is a number
+  // taskGroupId is a number
   // isAssigned is a boolean
   constructor(
     taskId,
@@ -14,7 +14,7 @@ class TaskJSONable {
     isCompleted,
     projectId,
     taskPriority,
-    groupId,
+    taskGroupId,
     isAssigned
   ) {
     this.taskId = taskId;
@@ -23,7 +23,7 @@ class TaskJSONable {
     this.isCompleted = isCompleted;
     this.projectId = projectId;
     this.taskPriority = taskPriority;
-    this.groupId = groupId;
+    this.taskGroupId = taskGroupId;
     this.isAssigned = isAssigned;
   }
   toString() {
