@@ -84,7 +84,7 @@ const runUser = async (req, res, next) => {
     .then(() =>
       res.status(201).json({
         success: "algorithm has completed execution",
-        projectJSONable: finalAssignments,
+        project: finalAssignments,
       })
     )
     .catch((error) => res.status(401).json({ error: error }));

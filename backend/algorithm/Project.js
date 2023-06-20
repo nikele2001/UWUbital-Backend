@@ -50,7 +50,7 @@ class Project {
     for (let i = 0; i < proj.taskGroups.length; i++) {
       taskCopy[i] = TaskGroup.fromJSONable(proj.taskGroups[i]);
     }
-    return new Project(this.projectId, this.projectName, peopleCopy, taskCopy);
+    return new Project(proj.projectId, proj.projectName, peopleCopy, taskCopy);
   }
   getTotalWorkload() {
     let out = 0;
