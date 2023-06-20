@@ -8,7 +8,7 @@ const { Project } = require("./../algorithm/Project");
 module.exports = {
   runGreedyAlgorithm: function (project, numOfPriority) {
     /*
-    Param: A Project object with some unassigned tasks (tasks in taskGroups with user_id of undefined or -1).
+    Param: A Project object with some unassigned tasks (tasks in taskGroups with personId of undefined or -1).
     Return: A Project object with no unassigned tasks.
 
     Algorithm
@@ -36,7 +36,7 @@ module.exports = {
     }
     for (const tg of proj.taskGroups) {
       for (const task of tg.tasks) {
-        allTasks[task.task_priority].push(task);
+        allTasks[task.taskPriority].push(task);
       }
     }
     // define constants
@@ -121,120 +121,120 @@ module.exports = {
 
 // local test case
 // let projJSONable = {
-//   id: 8,
-//   name: "project by nicbot",
+//   projectId: 8,
+//   projectName: "project by nicbot",
 //   people: [
 //     {
-//       id: 2,
-//       name: "nikele",
-//       avails: [],
+//       personId: 2,
+//       personName: "nikele",
+//       availabilities: [],
 //       role: "viewer",
 //     },
 //     {
-//       id: 3,
-//       name: "nikele2",
-//       avails: [],
+//       personId: 3,
+//       personName: "nikele2",
+//       availabilities: [],
 //       role: "viewer",
 //     },
 //     {
-//       id: 4,
-//       name: "nicbot",
-//       avails: [],
+//       personId: 4,
+//       personName: "nicbot",
+//       availabilities: [],
 //       role: "owner",
 //     },
 //   ],
 //   taskGroups: [
 //     {
-//       id: 18,
-//       name: "nicbot tasks for 3",
+//       groupId: 18,
+//       taskGroupName: "nicbot tasks for 3",
 //       tasks: [
 //         {
-//           task_id: 80,
+//           taskId: 80,
 //           interval:
 //             "2023-06-17T00:30:38.835+08:00/2023-06-17T01:30:38.835+08:00",
-//           user_id: null,
+//           personId: null,
 //           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 18,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 18,
 //           isAssigned: true,
 //         },
 //         {
-//           task_id: 81,
+//           taskId: 81,
 //           interval:
 //             "2023-06-17T00:30:38.835+08:00/2023-06-17T01:30:38.835+08:00",
-//           user_id: null,
+//           personId: null,
 //           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 18,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 18,
 //           isAssigned: true,
 //         },
 //         {
-//           task_id: 82,
+//           taskId: 82,
 //           interval:
 //             "2023-06-17T00:30:38.835+08:00/2023-06-17T01:30:38.835+08:00",
-//           user_id: null,
+//           personId: null,
 //           isCompleted: false,
-//           proj_id: "8",
-//           task_priority: 0,
-//           group_id: 18,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 18,
 //           isAssigned: true,
 //         },
 //       ],
 //       pax: 3,
 //     },
-//     // {
-//     //   id: 21,
-//     //   name: "nicbot tasks for 4",
-//     //   tasks: [
-//     //     {
-//     //       task_id: 99,
-//     //       interval:
-//     //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
-//     //       user_id: "2",
-//     //       isCompleted: false,
-//     //       proj_id: "8",
-//     //       task_priority: 0,
-//     //       group_id: 21,
-//     //       isAssigned: true,
-//     //     },
-//     //     {
-//     //       task_id: 100,
-//     //       interval:
-//     //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
-//     //       user_id: "3",
-//     //       isCompleted: false,
-//     //       proj_id: "8",
-//     //       task_priority: 0,
-//     //       group_id: 21,
-//     //       isAssigned: true,
-//     //     },
-//     //     {
-//     //       task_id: 101,
-//     //       interval:
-//     //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
-//     //       user_id: "4",
-//     //       isCompleted: false,
-//     //       proj_id: "8",
-//     //       task_priority: 0,
-//     //       group_id: 21,
-//     //       isAssigned: true,
-//     //     },
-//     //     {
-//     //       task_id: 102,
-//     //       interval:
-//     //         "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
-//     //       user_id: null,
-//     //       isCompleted: false,
-//     //       proj_id: "8",
-//     //       task_priority: 0,
-//     //       group_id: 21,
-//     //       isAssigned: false,
-//     //     },
-//     //   ],
-//     //   pax: 4,
-//     // },
+//     {
+//       groupId: 21,
+//       taskGroupName: "nicbot tasks for 4",
+//       tasks: [
+//         {
+//           taskId: 99,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+//           personId: "2",
+//           isCompleted: false,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 21,
+//           isAssigned: true,
+//         },
+//         {
+//           taskId: 100,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+//           personId: "3",
+//           isCompleted: false,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 21,
+//           isAssigned: true,
+//         },
+//         {
+//           taskId: 101,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+//           personId: "4",
+//           isCompleted: false,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 21,
+//           isAssigned: true,
+//         },
+//         {
+//           taskId: 102,
+//           interval:
+//             "2023-06-17T00:57:51.635+08:00/2023-06-17T01:57:51.635+08:00",
+//           personId: null,
+//           isCompleted: false,
+//           projectId: "8",
+//           taskPriority: 0,
+//           groupId: 21,
+//           isAssigned: false,
+//         },
+//       ],
+//       pax: 4,
+//     },
 //   ],
 // };
 
@@ -243,4 +243,4 @@ module.exports = {
 // const priority = 3;
 // module.exports.runGreedyAlgorithm(project, priority);
 // const result = module.exports.runGreedyAlgorithm(project, priority).toString();
-// console.log(result)
+// console.log(result);

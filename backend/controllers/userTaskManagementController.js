@@ -255,13 +255,13 @@ const PATCHTaskGroupUser = async (req, res, next) => {
         if (new_result.personId !== null) {
           await PersonTaskGroup.findOrCreate({
             where: {
-              personId: Number(new_result.personId),
+              user_id: Number(new_result.personId),
               group_id: groupId,
             },
           });
           await PersonTask.findOrCreate({
             where: {
-              personId: Number(new_result.personId),
+              user_id: Number(new_result.personId),
               task_id: new_result.task_id,
             },
           });

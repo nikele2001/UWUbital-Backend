@@ -3,7 +3,7 @@ const { TaskGroup } = require("./TaskGroup");
 const { ProjectJSONable } = require("./ProjectJSONable");
 
 class Project {
-  // id is a number
+  // projectId is a number
   // projectName is a string
   // people is an array of Person objects
   // taskGroups is an array of TaskGroup objects

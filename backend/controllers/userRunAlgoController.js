@@ -28,9 +28,9 @@ const runUser = async (req, res, next) => {
   // all assigned tasks in the project (including preassignments)
   const assignedTaskGroups = finalAssignments.taskGroups.map((x) => {
     const taskarr = x.tasks;
-    x.useridarr = [];
+    x.personIdArr = [];
     taskarr.map((y) => {
-      x.useridarr.push(y.user_id);
+      x.personIdArr.push(y.personId);
       return y;
     });
     return x;
@@ -42,11 +42,11 @@ const runUser = async (req, res, next) => {
   for (let i = 0; i < assignedTaskGroups.length; i++) {
     const tmp = assignedTaskGroups[i];
     ppltgpromisearr[i] = [];
-    for (let j = 0; j < tmp.useridarr.length; j++) {
+    for (let j = 0; j < tmp.personIdArr.length; j++) {
       ppltgpromisearr[i][j] = PersonTaskGroup.findOrCreate({
         where: {
-          group_id: tmp.id,
-          user_id: tmp.useridarr[j],
+          group_id: tmp.groupId,
+          user_id: tmp.personIdArr[j],
         },
       });
     }
@@ -64,12 +64,12 @@ const runUser = async (req, res, next) => {
   for (let i = 0; i < taskarr.length; i++) {
     const tmp = taskarr[i];
     ppltaskpromisearr[i] = PersonTask.update(
-      { user_id: tmp.user_id },
-      { where: { task_id: tmp.task_id } }
+      { user_id: tmp.personId },
+      { where: { task_id: tmp.taskId } }
     );
     taskpromisearr[i] = Task.update(
       { task_JSON: JSON.stringify(tmp) },
-      { where: { task_id: tmp.task_id } }
+      { where: { task_id: tmp.taskId } }
     );
   }
 

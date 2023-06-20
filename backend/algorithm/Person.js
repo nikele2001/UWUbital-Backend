@@ -5,8 +5,8 @@ const { PersonJSONable } = require("./personJSONable");
 const { AvailabilityJSONable } = require("./AvailabilityJSONable");
 
 class Person {
-  // id is a string
-  // name is a string
+  // personId is a string
+  // personName is a string
   // avail is an array of Availability objects
   // role is a string (editor/viewer)
   constructor(personId, personName, availabilities, role) {
@@ -44,7 +44,12 @@ class Person {
     for (let i = 0; i < object.availabilities.length; i++) {
       outAvails[i] = Availability.fromJSONable(object.availabilities[i]);
     }
-    return new Person(object.id, object.personName, outAvails, object.role);
+    return new Person(
+      object.personId,
+      object.personName,
+      outAvails,
+      object.role
+    );
   }
   createCopy() {
     const outAvails = [];
