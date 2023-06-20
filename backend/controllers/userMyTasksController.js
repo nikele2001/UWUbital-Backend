@@ -88,12 +88,15 @@ const getMyTasksUser = async (req, res, next) => {
       let index = 0;
       for (const task of tasks) {
         const tc = JSON.parse(task.task_JSON);
+        console.log(taskGroups);
+        console.log(tc);
         const tg = taskGroups.filter(
-          (x) => Number(x.taskGroupId) === Number(tc.taskGroupId)
+          (x) => Number(x.group_id) === Number(tc.groupId)
         )[0];
+        console.log(tg);
         const tgCopy = {
-          taskGroupId: tg.taskGroupId,
-          taskGroupName: tg.taskGroupName,
+          groupId: tg.group_id,
+          taskGroupName: tg.task_group_name,
           tasks: [tc],
           pax: tg.pax,
           priority: 1,

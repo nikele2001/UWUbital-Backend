@@ -48,7 +48,7 @@ const PUTPersonUser = async (req, res, next) => {
       });
       return res
         .status(201)
-        .json({ success: "person added", userId: result.user_id });
+        .json({ success: "person added", personId: result.user_id });
     })
     .catch((err) => {
       console.log(err);

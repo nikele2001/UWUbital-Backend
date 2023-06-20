@@ -104,14 +104,14 @@ const PUTTaskGroupUser = async (req, res, next) => {
         if (new_result.personId !== null) {
           await PersonTaskGroup.findOrCreate({
             where: {
-              personId: Number(new_result.personId),
+              user_id: Number(new_result.personId),
               group_id: group_id,
             },
           });
           await PersonTask.findOrCreate({
             where: {
-              personId: Number(new_result.personId),
-              task_id: new_result.task_id,
+              user_id: Number(new_result.personId),
+              task_id: new_result.taskId,
             },
           });
           console.log("updated relations table!");
@@ -170,19 +170,19 @@ const PUTTaskGroupUser = async (req, res, next) => {
 };
 
 const DELETETaskGroupUser = async (req, res, next) => {
-  const { taskGroupId } = req.body;
-  if (!taskGroupId) {
+  const { groupId } = req.body;
+  if (!groupId) {
     return res.status(403).json({
       error: "Group ID is required for editing task in project",
     });
   }
   // delete all tasks in task group
-  await TaskGroupTask.findAll({ where: { group_id: taskGroupId } })
+  await TaskGroupTask.findAll({ where: { group_id: groupId } })
     .then(async (result) => {
       await Task.destroy({ where: { task_id: result.map((x) => x.task_id) } });
     })
     .then(async () => {
-      await TaskGroup.destroy({ where: { group_id: taskGroupId } });
+      await TaskGroup.destroy({ where: { group_id: groupId } });
     })
     .then(() => res.status(201).json({ success: "success" }))
     .catch((err) =>
@@ -193,8 +193,8 @@ const DELETETaskGroupUser = async (req, res, next) => {
 
 // NOTE: rewrite operation, not add on
 const PATCHTaskGroupUser = async (req, res, next) => {
-  const { taskGroupId, pax, taskArrJSON, taskGroupName } = req.body;
-  if (!taskGroupId || !pax || !taskArrJSON || !taskGroupName) {
+  const { groupId, pax, taskArrJSON, taskGroupName } = req.body;
+  if (!groupId || !pax || !taskArrJSON || !taskGroupName) {
     return res.status(403).json({
       error:
         "task array JSON, task group name, group ID and pax are required for editing task in project",
@@ -203,7 +203,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
 
   // finding project id so that project task table can be updated accordingly
   const proj = await ProjectTaskGroup.findAll({
-    where: { group_id: taskGroupId },
+    where: { group_id: groupId },
   });
   const project_id = proj[0].project_id;
   console.log("number: " + project_id);
@@ -211,14 +211,14 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   let id_array = [];
 
   // updating pax in taskgroup table
-  await TaskGroup.update({ pax: pax }, { where: { group_id: taskGroupId } });
+  await TaskGroup.update({ pax: pax }, { where: { group_id: groupId } });
 
   // removing old records from task table
   await TaskGroupTask.findAll({
     attributes: [
       [sequelize.fn("DISTINCT", sequelize.col("task_id")), "task_id"],
     ],
-    where: { group_id: taskGroupId },
+    where: { group_id: groupId },
   }).then(async (result) => {
     // POSSIBLE OPTIMISATION
     for (let i = 0; i < result.length; i++) {
@@ -256,7 +256,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
           await PersonTaskGroup.findOrCreate({
             where: {
               personId: Number(new_result.personId),
-              group_id: taskGroupId,
+              group_id: groupId,
             },
           });
           await PersonTask.findOrCreate({
@@ -290,7 +290,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
       console.log("adding records into task group task table...");
       for (let i = 0; i < result.length; i++) {
         result[i] = await TaskGroupTask.create({
-          group_id: taskGroupId,
+          group_id: groupId,
           task_id: result[i].task_id,
         });
       }
