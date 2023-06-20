@@ -210,8 +210,11 @@ const PATCHTaskGroupUser = async (req, res, next) => {
   console.log("finding...");
   let id_array = [];
 
-  // updating pax in taskgroup table
-  await TaskGroup.update({ pax: pax }, { where: { group_id: groupId } });
+  // updating task group name and pax in taskgroup table
+  await TaskGroup.update(
+    { task_group_name: taskGroupName, pax: pax },
+    { where: { group_id: groupId } }
+  );
 
   // removing old records from task table
   await TaskGroupTask.findAll({
@@ -250,7 +253,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
       console.log("adding task IDs to taskJSON...");
       for (let i = 0; i < result.length; i++) {
         let new_result = JSON.parse(result[i].task_JSON);
-        new_result.task_id = result[i].task_id;
+        new_result.taskId = result[i].task_id;
         console.log(new_result.personId);
         if (new_result.personId !== null) {
           await PersonTaskGroup.findOrCreate({
@@ -262,7 +265,7 @@ const PATCHTaskGroupUser = async (req, res, next) => {
           await PersonTask.findOrCreate({
             where: {
               user_id: Number(new_result.personId),
-              task_id: new_result.task_id,
+              task_id: new_result.taskId,
             },
           });
           console.log("updated relations table!");
