@@ -127,7 +127,7 @@ const PUTAvailUser = async (req, res, next) => {
     .then((result) => {
       return PersonProject.create({
         permission: result.permission,
-        avail_JSON: JSON.stringify(avail_JSON),
+        avail_JSON: JSON.stringify(availabilityJSON),
         user_id: personId,
         project_id: projectId,
       });
@@ -135,12 +135,12 @@ const PUTAvailUser = async (req, res, next) => {
     .then(async (result) => {
       console.log("adding avail IDs to availJSON...");
       let new_result = JSON.parse(result.avail_JSON);
-      new_result.id = result.relation_id;
-      // console.log(new_result);
+      new_result.availabilityId = result.relation_id;
       new_result = JSON.stringify(new_result);
+      // console.log(new_result);
       await PersonProject.update(
         { avail_JSON: new_result },
-        { where: { relation_id: result.relationId } }
+        { where: { relation_id: result.relation_id } }
       );
       return result;
     })
