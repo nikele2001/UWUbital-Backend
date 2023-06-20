@@ -20,20 +20,20 @@ const AvailJSON = require("./../algorithm/AvailabilityJSONable");
 
 // Add person into project
 const PUTPersonUser = async (req, res, next) => {
-  const { username, proj_id, role, proj_name } = req.body;
-  if (!username || !proj_id || !role || !proj_name) {
+  const { personName, projectId, role, projectName } = req.body;
+  if (!personName || !projectId || !role || !projectName) {
     return res.status(403).json({
       error:
         "username, project ID and role are required for adding person to project",
     });
   }
-  await Person.findOne({ where: { user_name: username } })
+  await Person.findOne({ where: { user_name: personName } })
     .then(async (result) => {
       if (!result) {
         return res.status(404).json({ error: "person not found" });
       }
       const person = await PersonProject.findOne({
-        where: { user_id: result.user_id, project_id: proj_id },
+        where: { user_id: result.user_id, project_id: projectId },
       });
       if (person !== null) {
         return res
@@ -41,14 +41,14 @@ const PUTPersonUser = async (req, res, next) => {
           .json({ error: "person already added to project" });
       }
       PersonProject.create({
-        project_id: proj_id,
-        project_name: proj_name,
+        project_id: projectId,
+        project_name: projectName,
         permission: role,
         user_id: result.user_id,
       });
       return res
         .status(201)
-        .json({ success: "person added", user_id: result.user_id });
+        .json({ success: "person added", personId: result.user_id });
     })
     .catch((err) => {
       console.log(err);
@@ -57,15 +57,15 @@ const PUTPersonUser = async (req, res, next) => {
 };
 
 const DELETEPersonUser = async (req, res, next) => {
-  const { user_id, proj_id } = req.body;
-  if (!user_id || !proj_id) {
+  const { personId, projectId } = req.body;
+  if (!personId || !projectId) {
     return res.status(403).json({
       error:
         "user ID and project ID are required for removing person from project",
     });
   }
   await PersonProject.destroy({
-    where: { user_id: user_id, project_id: proj_id },
+    where: { user_id: personId, project_id: projectId },
   })
     .then(() =>
       res
@@ -80,8 +80,8 @@ const DELETEPersonUser = async (req, res, next) => {
 };
 
 const PATCHPersonUser = async (req, res, next) => {
-  const { user_id, proj_id, role } = req.body;
-  if (!user_id || !proj_id || !role) {
+  const { personId, projectId, role } = req.body;
+  if (!personId || !projectId || !role) {
     return res.status(403).json({
       error:
         "user ID, project ID and role are required for editing person in project",
@@ -89,15 +89,15 @@ const PATCHPersonUser = async (req, res, next) => {
   }
   // add edit person logic
   let person = await PersonProject.findOne({
-    where: { project_id: proj_id, user_id: user_id },
+    where: { project_id: projectId, user_id: personId },
   });
   if (!person || person.permission === "owner") {
-    throw new Error("eatshitflykite");
+    return res.status(403).json({ error: "eatshitflykite" });
   }
 
   await PersonProject.update(
     { permission: role },
-    { where: { project_id: proj_id, user_id: user_id } }
+    { where: { project_id: projectId, user_id: personId } }
   ).then(() => {
     return res.status(201).json({
       success: `User permission editted successfully to ${role}!`,
@@ -107,29 +107,29 @@ const PATCHPersonUser = async (req, res, next) => {
 
 // add availability to person
 const PUTAvailUser = async (req, res, next) => {
-  const { user_id, project_id, avail_JSON } = req.body;
-  if (!user_id || !project_id || !avail_JSON) {
+  const { personId, projectId, availabilityJSON } = req.body;
+  if (!personId || !projectId || !availabilityJSON) {
     return res.status(403).json({
       error:
         "User ID, Project ID and avail_JSON are required for adding avail in project",
     });
   }
   const newAvail = await PersonProject.findOne({
-    where: { user_id: user_id, project_id: project_id },
+    where: { user_id: personId, project_id: projectId },
   });
 
   if (newAvail === null) {
     return res.status(404).json({ error: "user not found" });
   }
   await PersonProject.findOne({
-    where: { user_id: user_id, project_id: project_id },
+    where: { user_id: personId, project_id: projectId },
   })
     .then((result) => {
       return PersonProject.create({
         permission: result.permission,
         avail_JSON: JSON.stringify(avail_JSON),
-        user_id: user_id,
-        project_id: project_id,
+        user_id: personId,
+        project_id: projectId,
       });
     })
     .then(async (result) => {
@@ -140,14 +140,14 @@ const PUTAvailUser = async (req, res, next) => {
       new_result = JSON.stringify(new_result);
       await PersonProject.update(
         { avail_JSON: new_result },
-        { where: { relation_id: result.relation_id } }
+        { where: { relation_id: result.relationId } }
       );
       return result;
     })
     .then((result) => {
       return res.status(201).json({
         success: `added user's availability successfully`,
-        avail_id: result.relation_id,
+        availabilityId: result.relation_id,
       });
     })
     .catch((err) => {
@@ -156,13 +156,13 @@ const PUTAvailUser = async (req, res, next) => {
 };
 
 const DELETEAvailUser = async (req, res, next) => {
-  const { avail_id } = req.body;
-  if (!avail_id) {
+  const { availabilityId } = req.body;
+  if (!availabilityId) {
     return res.status(403).json({
       error: "Avail ID is required for removing avail in project",
     });
   }
-  await PersonProject.destroy({ where: { relation_id: avail_id } })
+  await PersonProject.destroy({ where: { relation_id: availabilityId } })
     .then(() =>
       res.status(201).json({ success: "availability deleted successfully" })
     )
@@ -172,17 +172,17 @@ const DELETEAvailUser = async (req, res, next) => {
 };
 
 const PATCHAvailUser = async (req, res, next) => {
-  const { user_id, project_id, avail_JSON, avail_id } = req.body;
-  if (!user_id || !project_id || !avail_JSON || !avail_id) {
+  const { personId, projectId, availabilityJSON, availabilityId } = req.body;
+  if (!personId || !projectId || !availabilityJSON || !availabilityId) {
     return res.status(403).json({
       error:
         "User ID, Project ID, Avail ID and avail_JSON are required for updating avail in project",
     });
   }
   const searchCond = {
-    relation_id: avail_id,
-    user_id: user_id,
-    project_id: project_id,
+    relation_id: availabilityId,
+    user_id: personId,
+    project_id: projectId,
   };
   let avail = await PersonProject.findOne({ where: searchCond });
   if (!avail) {
@@ -190,7 +190,7 @@ const PATCHAvailUser = async (req, res, next) => {
   }
   // console.log("avail found");
   PersonProject.update(
-    { avail_JSON: JSON.stringify(avail_JSON) },
+    { avail_JSON: JSON.stringify(availabilityJSON) },
     { where: searchCond }
   )
     // .then(async (result) => {

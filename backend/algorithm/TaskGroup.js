@@ -2,20 +2,20 @@ const { Task } = require("./Task");
 const { TaskGroupJSONable } = require("./TaskGroupJSONable");
 
 class TaskGroup {
-  // id is number
-  // name is string
+  // taskGroupId is number
+  // taskGroupName is string
   // tasks is a Task array
   // pax is a number
   // priority is a number
-  constructor(id, name, tasks, pax) {
-    this.id = id;
-    this.name = name;
+  constructor(taskGroupId, taskGroupName, tasks, pax) {
+    this.taskGroupId = taskGroupId;
+    this.taskGroupName = taskGroupName;
     this.tasks = tasks;
     this.pax = pax;
     // this.priority = priority;
   }
   toString() {
-    let out = "Task Group " + this.name + ":\n";
+    let out = "Task Group " + this.taskGroupName + ":\n";
     for (const task of this.tasks) {
       out += task.toString();
     }
@@ -27,8 +27,8 @@ class TaskGroup {
       outTasks[i] = this.tasks[i].toJSONable();
     }
     return new TaskGroupJSONable(
-      this.id,
-      this.name,
+      this.taskGroupId,
+      this.taskGroupName,
       outTasks,
       this.pax
       // this.priority
@@ -39,7 +39,12 @@ class TaskGroup {
     for (let i = 0; i < object.tasks.length; i++) {
       outTasks[i] = Task.fromJSONable(object.tasks[i]);
     }
-    return new TaskGroup(object.id, object.name, outTasks, object.pax);
+    return new TaskGroup(
+      object.taskGroupId,
+      object.taskGroupName,
+      outTasks,
+      object.pax
+    );
   }
   getTotalWorkload() {
     let out = 0;
@@ -53,7 +58,13 @@ class TaskGroup {
     for (let i = 0; i < this.tasks.length; i++) {
       outTasks[i] = this.tasks[i].createCopy();
     }
-    return new TaskGroup(this.id, this.name, outTasks, this.pax, this.priority);
+    return new TaskGroup(
+      this.taskGroupId,
+      this.taskGroupName,
+      outTasks,
+      this.pax,
+      this.priority
+    );
   }
   getWorkloadOf(person) {
     let out = 0;

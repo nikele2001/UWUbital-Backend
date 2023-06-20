@@ -21,23 +21,23 @@ const {
 } = require("./../models/relations");
 
 const getMyTasksUser = async (req, res, next) => {
-  const { user_id } = req.body;
-  if (!user_id) {
+  const { personId } = req.body;
+  if (!personId) {
     return res.status(403).json({
-      error: "user_id is required for getting your tasks!",
+      error: "personId is required for getting your tasks!",
     });
   }
   try {
-    const user = await Person.findOne({ where: { user_id: user_id } });
+    const user = await Person.findOne({ where: { user_id: personId } });
     if (!user) {
-      return res.status(404).json({ error: "user_id not found" });
+      return res.status(404).json({ error: "personId not found" });
     }
     // idarr is the array of project ids
     const idarr = PersonProject.findAll({
       attributes: [
         [sequelize.fn("DISTINCT", sequelize.col("project_id")), "project_id"],
       ],
-      where: { user_id: user_id },
+      where: { user_id: personId },
     }).then((projidarr) => projidarr.map((x) => x.project_id));
     // projArr is the Promise array of project objs
     const projArr = idarr.then((idarr) =>
@@ -54,7 +54,7 @@ const getMyTasksUser = async (req, res, next) => {
       attributes: [
         [sequelize.fn("DISTINCT", sequelize.col("task_id")), "task_id"],
       ],
-      where: { user_id: user_id },
+      where: { user_id: personId },
     }).then((idarr) => idarr.map((x) => x.task_id));
     // array of task promises
     const tasks = taskIds.then((idarr) =>
@@ -88,20 +88,23 @@ const getMyTasksUser = async (req, res, next) => {
       let index = 0;
       for (const task of tasks) {
         const tc = JSON.parse(task.task_JSON);
+        console.log(taskGroups);
+        console.log(tc);
         const tg = taskGroups.filter(
-          (x) => Number(x.group_id) === Number(tc.group_id)
+          (x) => Number(x.group_id) === Number(tc.groupId)
         )[0];
+        console.log(tg);
         const tgCopy = {
-          id: tg.group_id,
-          name: tg.task_group_name,
+          groupId: tg.group_id,
+          taskGroupName: tg.task_group_name,
           tasks: [tc],
           pax: tg.pax,
           priority: 1,
         };
         const projName = projs.filter(
-          (x) => Number(x.project_id) === Number(tc.proj_id)
-        )[0].project_name;
-        outArr[index] = { projName: projName, taskGroup: tgCopy };
+          (x) => Number(x.projectId) === Number(tc.projectId)
+        )[0].projectName;
+        outArr[index] = { projectName: projName, taskGroup: tgCopy };
         index++;
       }
       return res.status(201).json({ success: "success", tasks: outArr });
