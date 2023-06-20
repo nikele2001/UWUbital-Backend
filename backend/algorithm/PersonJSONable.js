@@ -1,17 +1,17 @@
 class PersonJSONable {
   // id is a number
-  // name is a string
+  // personName is a string
   // avail is an array of AvailabilityJSONable objects
   // role is a string(viewer/ editor)
-  constructor(personId, name, availabilities, role) {
+  constructor(personId, personName, availabilities, role) {
     this.personId = personId;
-    this.name = name;
+    this.personName = personName;
     this.availabilities = availabilities;
     this.role = role;
   }
 
   toString() {
-    var out = "JSON Name: " + this.name + ", " + this.role + "\n";
+    var out = "JSON Name: " + this.personName + ", " + this.role + "\n";
     out += "Availabilities: ";
     for (var avail of this.availabilities) {
       out += avail.toString() + "\n";

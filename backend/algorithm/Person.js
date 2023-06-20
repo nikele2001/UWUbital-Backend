@@ -9,9 +9,9 @@ class Person {
   // name is a string
   // avail is an array of Availability objects
   // role is a string (editor/viewer)
-  constructor(personId, name, availabilities, role) {
+  constructor(personId, personName, availabilities, role) {
     this.personId = personId;
-    this.name = name;
+    this.personName = personName;
     this.availabilities = availabilities;
     this.role = role;
   }
@@ -19,7 +19,7 @@ class Person {
     return this.personId;
   }
   toString() {
-    var out = "Name: " + this.name + ", " + this.role + "\n";
+    var out = "Name: " + this.personName + ", " + this.role + "\n";
     out += "Availabilities: ";
     for (var avail of this.availabilities) {
       out += avail.toString() + "\n";
@@ -31,7 +31,12 @@ class Person {
     for (let i = 0; i < this.availabilities.length; i++) {
       outAvails[i] = this.availabilities[i].toJSONable();
     }
-    return new PersonJSONable(this.personId, this.name, outAvails, this.role);
+    return new PersonJSONable(
+      this.personId,
+      this.personName,
+      outAvails,
+      this.role
+    );
   }
 
   static fromJSONable(object) {
@@ -39,14 +44,14 @@ class Person {
     for (let i = 0; i < object.availabilities.length; i++) {
       outAvails[i] = Availability.fromJSONable(object.availabilities[i]);
     }
-    return new Person(object.id, object.name, outAvails, object.role);
+    return new Person(object.id, object.personName, outAvails, object.role);
   }
   createCopy() {
     const outAvails = [];
     for (let i = 0; i < this.availabilities.length; i++) {
       outAvails[i] = this.availabilities[i].createCopy();
     }
-    return new Person(this.personId, this.name, outAvails, this.role);
+    return new Person(this.personId, this.personName, outAvails, this.role);
   }
   canTakeTask(task, project) {
     let out = true;
