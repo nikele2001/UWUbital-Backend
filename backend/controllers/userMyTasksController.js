@@ -103,7 +103,7 @@ const getMyTasksUser = async (req, res, next) => {
         };
         const projName = projs.filter(
           (x) => Number(x.project_id) === Number(tc.projectId)
-        )[0].projectName;
+        )[0].project_name;
         outArr[index] = { projectName: projName, taskGroup: tgCopy };
         index++;
       }
