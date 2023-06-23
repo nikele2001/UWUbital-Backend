@@ -48,13 +48,15 @@ module.exports = {
       const taskQueue = [];
       // step 1
       for (const task of tasks) {
-        let canDo = 0;
-        for (const person of people) {
-          if (person.canTakeTask(task, project)) {
-            canDo++;
+        if (!task.personId) {
+          let canDo = 0;
+          for (const person of people) {
+            if (person.canTakeTask(task, project)) {
+              canDo++;
+            }
           }
+          taskQueue.push({ task: task, assignees: canDo });
         }
-        taskQueue.push({ task: task, assignees: canDo });
       }
       // step 2
       taskQueue.sort((a, b) => (a.assignees <= b.assignees ? -1 : 1));
