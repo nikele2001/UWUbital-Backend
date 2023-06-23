@@ -18,6 +18,8 @@ module.exports = {
   createAssociations: function () {
     // relationship table between people and projects is a super many-to-many relationship, since many people can be in a project, and many projects can be participated by people
     // additionally, each record in the people_projects relationship table states a person's availability in the project
+
+    // person-project relationship
     Person.hasMany(PersonProject, {
       foreignKey: {
         name: "user_id",
@@ -42,7 +44,7 @@ module.exports = {
         name: "project_id",
       },
     });
-
+    // person-task group relationship
     Person.hasMany(PersonTaskGroup, {
       foreignKey: {
         name: "user_id",
@@ -67,23 +69,32 @@ module.exports = {
         name: "group_id",
       },
     });
-
-    Person.belongsToMany(Task, {
+    // person-task relationship
+    Person.hasMany(PersonTask, {
       foreignKey: {
         name: "user_id",
       },
-      through: PersonTask,
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     });
-    Task.belongsToMany(Person, {
+    PersonTask.belongsTo(Person, {
+      foreignKey: {
+        name: "user_id",
+      },
+    });
+    Task.hasMany(PersonTask, {
       foreignKey: {
         name: "task_id",
       },
-      through: PersonTask,
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     });
+    PersonTask.belongsTo(Task, {
+      foreignKey: {
+        name: "task_id",
+      },
+    });
+    // project-taskgroup relationship
     Project.belongsToMany(TaskGroup, {
       foreignKey: {
         name: "project_id",

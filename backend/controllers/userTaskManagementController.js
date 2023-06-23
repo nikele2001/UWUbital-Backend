@@ -193,132 +193,222 @@ const DELETETaskGroupUser = async (req, res, next) => {
 
 // NOTE: rewrite operation, not add on
 const PATCHTaskGroupUser = async (req, res, next) => {
-  const { taskGroupId, pax, taskArrJSON, taskGroupName } = req.body;
-  if (!taskGroupId || !pax || !taskArrJSON || !taskGroupName) {
+  const { taskGroupId, pax, taskArrJSON, taskGroupName, projectId, taskIdArr } =
+    req.body;
+  if (
+    !taskGroupId ||
+    !pax ||
+    !taskArrJSON ||
+    !taskGroupName ||
+    !projectId ||
+    !taskIdArr
+  ) {
     return res.status(403).json({
       error:
-        "task array JSON, task group name, group ID and pax are required for editing task in project",
+        "taskGroupId, pax, taskArrJSON, taskGroupName, projectId, taskIdArr are required for editing task in project",
     });
   }
 
-  // finding project id so that project task table can be updated accordingly
-  const proj = await ProjectTaskGroup.findAll({
-    where: { group_id: taskGroupId },
-  });
-  const project_id = proj[0].project_id;
-  console.log("number: " + project_id);
-  console.log("finding...");
-  let id_array = [];
+  // // finding project id so that project task table can be updated accordingly
+  // const proj = await ProjectTaskGroup.findAll({
+  //   where: { group_id: taskGroupId },
+  // });
+  // const project_id = proj[0].project_id;
+  // console.log("number: " + project_id);
+  // console.log("finding...");
+  // let id_array = [];
 
-  // updating task group name and pax in taskgroup table
-  await TaskGroup.update(
+  // // updating task group name and pax in taskgroup table
+  // await TaskGroup.update(
+  //   { task_group_name: taskGroupName, pax: pax },
+  //   { where: { group_id: taskGroupId } }
+  // );
+
+  // // removing old records from task table
+  // await TaskGroupTask.findAll({
+  //   attributes: [
+  //     [sequelize.fn("DISTINCT", sequelize.col("task_id")), "task_id"],
+  //   ],
+  //   where: { group_id: taskGroupId },
+  // }).then(async (result) => {
+  //   // POSSIBLE OPTIMISATION
+  //   for (let i = 0; i < result.length; i++) {
+  //     await Task.destroy({ where: { task_id: result[i].task_id } });
+  //   }
+  //   return result;
+  // });
+
+  // taskJSON_promise_arr = taskArrJSON.map(
+  //   (x) => new Promise((resolve, reject) => resolve(x))
+  // );
+  // console.log("Removed existing tasks under task group. adding new tasks...");
+
+  // // adding updated tasks to task group and relevant relation tables
+  // Promise.all(taskJSON_promise_arr)
+  //   // create record in task table
+  //   .then(async (result) => {
+  //     console.log("adding tasks to tasks table...");
+  //     for (let i = 0; i < result.length; i++) {
+  //       // console.log(result[i]);
+  //       result[i] = await Task.create({
+  //         task_JSON: JSON.stringify(result[i]),
+  //       });
+  //     }
+  //     return result;
+  //   })
+  //   .then(async (result) => {
+  //     // adding task IDs to task_JSON
+  //     console.log("adding task IDs to taskJSON...");
+  //     for (let i = 0; i < result.length; i++) {
+  //       let new_result = JSON.parse(result[i].task_JSON);
+  //       new_result.taskId = result[i].task_id;
+  //       console.log(new_result.personId);
+  //       if (new_result.personId !== null) {
+  //         await PersonTaskGroup.findOrCreate({
+  //           where: {
+  //             user_id: Number(new_result.personId),
+  //             group_id: taskGroupId,
+  //           },
+  //         });
+  //         await PersonTask.findOrCreate({
+  //           where: {
+  //             user_id: Number(new_result.personId),
+  //             task_id: new_result.taskId,
+  //           },
+  //         });
+  //         console.log("updated relations table!");
+  //       }
+  //       new_result = JSON.stringify(new_result);
+  //       await Task.update(
+  //         { task_JSON: new_result },
+  //         { where: { task_id: result[i].task_id } }
+  //       );
+  //     }
+  //     return result;
+  //   })
+  //   .then(async (result) => {
+  //     console.log("adding records in project task table...");
+  //     for (let i = 0; i < result.length; i++) {
+  //       result[i] = await ProjectTask.create({
+  //         project_id: project_id,
+  //         task_id: result[i].task_id,
+  //       });
+  //     }
+  //     return result;
+  //   })
+  //   // create record in task group task table
+  //   .then(async (result) => {
+  //     console.log("adding records into task group task table...");
+  //     for (let i = 0; i < result.length; i++) {
+  //       result[i] = await TaskGroupTask.create({
+  //         group_id: taskGroupId,
+  //         task_id: result[i].task_id,
+  //       });
+  //     }
+  //     return result;
+  //   })
+  //   // add task id to idarray
+  //   .then((result) => {
+  //     console.log("pushing task ids into id array...");
+  //     for (let i = 0; i < result.length; i++) {
+  //       // console.log(result[i].task_id);
+  //       id_array.push(result[i].task_id);
+  //     }
+  //   })
+  //   .then(() => {
+  //     console.log("task group added successfully");
+  //     return res.status(201).json({
+  //       success: "task group and respective tasks added successfully",
+  //       idArray: id_array,
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     return res.status(401).json({
+  //       error: err,
+  //     });
+  //   });
+  const outTaskIdArray = [];
+  const taskJSONArray = []; // array that contains all taskJSONs to be newly added
+  // need to return array of task ids
+  // promise to update task group
+  const delTaskGroupPromise = TaskGroup.update(
     { task_group_name: taskGroupName, pax: pax },
     { where: { group_id: taskGroupId } }
   );
+  // promise to delete relevant tasks (TODO)
+  const deleteTaskPromise = Task.destroy({ where: { task_id: taskIdArr } });
 
-  // removing old records from task table
-  await TaskGroupTask.findAll({
-    attributes: [
-      [sequelize.fn("DISTINCT", sequelize.col("task_id")), "task_id"],
-    ],
-    where: { group_id: taskGroupId },
-  }).then(async (result) => {
-    // POSSIBLE OPTIMISATION
-    for (let i = 0; i < result.length; i++) {
-      await Task.destroy({ where: { task_id: result[i].task_id } });
-    }
-    return result;
-  });
+  const deletionPromiseArr = [delTaskGroupPromise, deleteTaskPromise];
 
-  taskJSON_promise_arr = taskArrJSON.map(
-    (x) => new Promise((resolve, reject) => resolve(x))
+  // array of promises to add new tasks
+  const taskCreationPromiseArr = taskArrJSON.map((x) =>
+    Task.create({ task_JSON: JSON.stringify(x) })
+      .then((result) => {
+        let out = JSON.parse(result.task_JSON);
+        out.taskId = result.task_id;
+        tmp = JSON.stringify(out);
+        Task.update({ task_JSON: tmp }, { where: { task_id: result.task_id } });
+        return out;
+        // result is now a taskJSON object
+      })
+      .then((result) => {
+        outTaskIdArray.push(result.taskId);
+        taskJSONArray.push(result);
+      })
   );
-  console.log("Removed existing tasks under task group. adding new tasks...");
 
-  // adding updated tasks to task group and relevant relation tables
-  Promise.all(taskJSON_promise_arr)
-    // create record in task table
-    .then(async (result) => {
-      console.log("adding tasks to tasks table...");
-      for (let i = 0; i < result.length; i++) {
-        // console.log(result[i]);
-        result[i] = await Task.create({
-          task_JSON: JSON.stringify(result[i]),
-        });
-      }
-      return result;
-    })
-    .then(async (result) => {
-      // adding task IDs to task_JSON
-      console.log("adding task IDs to taskJSON...");
-      for (let i = 0; i < result.length; i++) {
-        let new_result = JSON.parse(result[i].task_JSON);
-        new_result.taskId = result[i].task_id;
-        console.log(new_result.personId);
-        if (new_result.personId !== null) {
-          await PersonTaskGroup.findOrCreate({
-            where: {
-              user_id: Number(new_result.personId),
-              group_id: taskGroupId,
-            },
-          });
-          await PersonTask.findOrCreate({
-            where: {
-              user_id: Number(new_result.personId),
-              task_id: new_result.taskId,
-            },
-          });
-          console.log("updated relations table!");
-        }
-        new_result = JSON.stringify(new_result);
-        await Task.update(
-          { task_JSON: new_result },
-          { where: { task_id: result[i].task_id } }
+  const relationPromisesArr = [];
+  return Promise.all([...deletionPromiseArr, ...taskCreationPromiseArr])
+    .then(() => {
+      console.log(taskJSONArray);
+      taskJSONArray.map((taskJSON) => {
+        // note: no need to update projects task groups table as task group itself is not deleted; no need to update people projects table as personnel is still in project
+        // add to projects tasks table
+        relationPromisesArr.push(
+          ProjectTask.create({
+            project_id: projectId,
+            task_id: taskJSON.taskId,
+          })
         );
-      }
-      return result;
-    })
-    .then(async (result) => {
-      console.log("adding records in project task table...");
-      for (let i = 0; i < result.length; i++) {
-        result[i] = await ProjectTask.create({
-          project_id: project_id,
-          task_id: result[i].task_id,
-        });
-      }
-      return result;
-    })
-    // create record in task group task table
-    .then(async (result) => {
-      console.log("adding records into task group task table...");
-      for (let i = 0; i < result.length; i++) {
-        result[i] = await TaskGroupTask.create({
-          group_id: taskGroupId,
-          task_id: result[i].task_id,
-        });
-      }
-      return result;
-    })
-    // add task id to idarray
-    .then((result) => {
-      console.log("pushing task ids into id array...");
-      for (let i = 0; i < result.length; i++) {
-        // console.log(result[i].task_id);
-        id_array.push(result[i].task_id);
-      }
+        // add to task groups tasks table
+        relationPromisesArr.push(
+          TaskGroupTask.create({
+            group_id: taskGroupId,
+            task_id: taskJSON.taskId,
+          })
+        );
+        // add to people tasks table
+        if (taskJSON.personId !== null) {
+          relationPromisesArr.push(
+            PersonTask.findOrCreate({
+              where: {
+                user_id: Number(taskJSON.personId),
+                task_id: taskJSON.taskId,
+              },
+            })
+          );
+          // add to people taskgroups table
+          relationPromisesArr.push(
+            PersonTaskGroup.findOrCreate({
+              where: {
+                user_id: taskJSON.personId,
+                group_id: taskJSON.taskGroupId,
+              },
+            })
+          );
+        }
+      });
     })
     .then(() => {
-      console.log("task group added successfully");
-      return res.status(201).json({
-        success: "task group and respective tasks added successfully",
-        idArray: id_array,
-      });
+      console.log("updating relations tables!");
+      return Promise.all(relationPromisesArr);
     })
-    .catch((err) => {
-      return res.status(401).json({
-        error: err,
-      });
-    });
+    .then(() =>
+      res.status(201).json({
+        success: "success",
+        idArr: outTaskIdArray,
+      })
+    );
 };
 
 module.exports = {
