@@ -1,7 +1,7 @@
 // const db = require("../util/database");
 
 const { Availability } = require("./Availability");
-const { PersonJSONable } = require("./personJSONable");
+const { PersonJSONable } = require("./PersonJSONable");
 const { AvailabilityJSONable } = require("./AvailabilityJSONable");
 
 class Person {
