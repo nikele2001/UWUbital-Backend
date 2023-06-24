@@ -1,23 +1,23 @@
 class PersonJSONable {
-    // id is a number
-    // name is a string
-    // avail is an array of AvailabilityJSONable objects
-    // role is a string(viewer/ editor)
-    constructor(id, name, avails, role) {
-      this.id = id;
-      this.name = name;
-      this.avails = avails;
-      this.role = role;
+  // id is a number
+  // personName is a string
+  // avail is an array of AvailabilityJSONable objects
+  // role is a string(viewer/ editor)
+  constructor(personId, personName, availabilities, role) {
+    this.personId = personId;
+    this.personName = personName;
+    this.availabilities = availabilities;
+    this.role = role;
+  }
+
+  toString() {
+    var out = "JSON Name: " + this.personName + ", " + this.role + "\n";
+    out += "Availabilities: ";
+    for (var avail of this.availabilities) {
+      out += avail.toString() + "\n";
     }
-  
-    toString() {
-      var out = "JSON Name: " + this.name + ", " + this.role + "\n";
-      out += "Availabilities: ";
-      for (var avail of this.avails) {
-        out += avail.toString() + "\n";
-      }
-      return out;
-    }
+    return out;
+  }
 }
 
-module.exports = {PersonJSONable};
+module.exports = { PersonJSONable };

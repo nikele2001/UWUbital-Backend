@@ -1,6 +1,6 @@
 // additional imports
 const { Availability } = require("./../algorithm/Availability");
-const AvailJSON = require("./../algorithm/availabilityJSONable");
+const AvailJSON = require("./../algorithm/AvailabilityJSONable");
 const { DateTime, Interval } = require("luxon");
 
 const s = DateTime.fromISO("2021-12-27T09:57:16.184Z");

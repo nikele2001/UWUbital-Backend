@@ -13,11 +13,11 @@ const {
   PATCHTaskGroupUser,
 } = require("./../controllers/userTaskManagementController");
 
-router.put("/task", PUTTaskUser);
+// router.put("/task", PUTTaskUser);
 
-router.delete("/task", DELETETaskUser);
+// router.delete("/task", DELETETaskUser);
 
-router.patch("/task", PATCHTaskUser);
+// router.patch("/task", PATCHTaskUser);
 
 router.put("/taskgroup", PUTTaskGroupUser);
 

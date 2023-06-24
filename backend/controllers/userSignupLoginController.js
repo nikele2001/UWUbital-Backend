@@ -23,8 +23,8 @@ const Securitykey = Buffer.from(
 // side note: Everytime encryption/decryption is run, a new cipher object needs to be created.
 
 const signupUser = async (req, res, next) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
+  const { personName, password } = req.body;
+  if (!personName || !password) {
     return res
       .status(403)
       .json({ error: "Both username and password is required for signing up" });
@@ -34,11 +34,11 @@ const signupUser = async (req, res, next) => {
     cipher.update(password, "utf-8", "hex") + cipher.final("hex");
   try {
     const existingUser = await Person.findOne({
-      where: { user_name: username },
+      where: { user_name: personName },
     });
     if (existingUser === null) {
       const user = await Person.create({
-        user_name: username,
+        user_name: personName,
         password_hash: encryptedPassword,
       });
       return res.status(201).json({ success: "success" });
@@ -51,8 +51,8 @@ const signupUser = async (req, res, next) => {
 };
 
 const loginUser = async (req, res, next) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
+  const { personName, password } = req.body;
+  if (!personName || !password) {
     return res
       .status(403)
       .json({ error: "Both username and password is required for logging in" });
@@ -63,7 +63,7 @@ const loginUser = async (req, res, next) => {
   try {
     // await 'unwraps' promises
     const existingUser = await Person.findOne({
-      where: { user_name: username },
+      where: { user_name: personName },
     });
     // username not found
     if (existingUser === null) {
@@ -87,7 +87,7 @@ const loginUser = async (req, res, next) => {
       },
       {
         where: {
-          user_name: username,
+          user_name: personName,
         },
       }
     )
@@ -98,7 +98,7 @@ const loginUser = async (req, res, next) => {
     return res.status(201).json({
       success: "login success!",
       token: token,
-      user_id: existingUser.user_id,
+      personId: existingUser.user_id,
     });
   } catch (err) {
     return res.status(401).json({ error: err });
@@ -108,13 +108,13 @@ const loginUser = async (req, res, next) => {
 const validateUser = async (req, res, next) => {
   // const token =
   //   req.body.token || req.query.token || req.headers["x-access-token"];
-  const { user_id, token } = req.body;
+  const { personId, token } = req.body;
   if (!token) {
     return res.status(403).send("A token is required for authentication");
   }
   try {
     const existingUser = await Person.findOne({
-      where: { user_id: user_id },
+      where: { user_id: personId },
     });
     // console.log(check[0]);
     const jwt_token = existingUser.jwt_token;

@@ -1,41 +1,74 @@
-const db = require("../util/database");
+// const db = require("../util/database");
 
-const { AvailabilityJSONable } = require("./AvailabilityJSONable");
+const { Availability } = require("./Availability");
 const { PersonJSONable } = require("./PersonJSONable");
+const { AvailabilityJSONable } = require("./AvailabilityJSONable");
 
 class Person {
-  // id is a string
-  // name is a string
+  // personId is a string
+  // personName is a string
   // avail is an array of Availability objects
   // role is a string (editor/viewer)
-  constructor(id, name, avails, role) {
-    this.id = id;
-    this.name = name;
-    this.avails = avails;
+  constructor(personId, personName, availabilities, role) {
+    this.personId = personId;
+    this.personName = personName;
+    this.availabilities = availabilities;
     this.role = role;
   }
+  getId() {
+    return this.personId;
+  }
   toString() {
-    var out = "Name: " + this.name + ", " + this.role + "\n";
+    var out = "Name: " + this.personName + ", " + this.role + "\n";
     out += "Availabilities: ";
-    for (var avail of this.avails) {
+    for (var avail of this.availabilities) {
       out += avail.toString() + "\n";
     }
     return out;
   }
   toJSONable() {
     const outAvails = [];
-    for (let i = 0; i < this.avails.length; i++) {
-      outAvails[i] = this.avails[i].toJSONable();
+    for (let i = 0; i < this.availabilities.length; i++) {
+      outAvails[i] = this.availabilities[i].toJSONable();
     }
-    return new PersonJSONable(this.id, this.name, outAvails, this.role);
+    return new PersonJSONable(
+      this.personId,
+      this.personName,
+      outAvails,
+      this.role
+    );
   }
 
   static fromJSONable(object) {
     const outAvails = [];
-    for (let i = 0; i < object.avails.length; i++) {
-      outAvails[i] = AvailabilityJSONable.fromJSONable(object.avails[i]);
+    for (let i = 0; i < object.availabilities.length; i++) {
+      outAvails[i] = Availability.fromJSONable(object.availabilities[i]);
     }
-    return new Person(object.id, object.name, outAvails, role);
+    return new Person(
+      object.personId,
+      object.personName,
+      outAvails,
+      object.role
+    );
+  }
+  createCopy() {
+    const outAvails = [];
+    for (let i = 0; i < this.availabilities.length; i++) {
+      outAvails[i] = this.availabilities[i].createCopy();
+    }
+    return new Person(this.personId, this.personName, outAvails, this.role);
+  }
+  canTakeTask(task, project) {
+    let out = true;
+    for (const avail of this.availabilities) {
+      out = !avail.overlaps(task.getInterval()) && out;
+    }
+    for (const tg of project.taskGroups) {
+      for (const other of tg.tasks) {
+        out = out && (other === task || !other.overlaps(task));
+      }
+    }
+    return out;
   }
 }
 

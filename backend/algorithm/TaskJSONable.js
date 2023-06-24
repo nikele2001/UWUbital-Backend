@@ -1,29 +1,29 @@
 class TaskJSONable {
-  // task_id is a number
+  // taskId is a number
   // interval is an ISO string
-  // user_id is a number
+  // personId is a number
   // isCompleted is a boolean
-  // proj_id is a number
-  // task_priority is a number
-  // group_id is a number
+  // projectId is a number
+  // taskPriority is a number
+  // taskGroupId is a number
   // isAssigned is a boolean
   constructor(
-    task_id,
+    taskId,
     interval,
-    user_id,
+    personId,
     isCompleted,
-    proj_id,
-    task_priority,
-    group_id,
+    projectId,
+    taskPriority,
+    taskGroupId,
     isAssigned
   ) {
-    this.task_id = task_id;
+    this.taskId = taskId;
     this.interval = interval;
-    this.user_id = user_id;
+    this.personId = personId;
     this.isCompleted = isCompleted;
-    this.proj_id = proj_id;
-    this.task_priority = task_priority;
-    this.group_id = group_id;
+    this.projectId = projectId;
+    this.taskPriority = taskPriority;
+    this.taskGroupId = taskGroupId;
     this.isAssigned = isAssigned;
   }
   toString() {

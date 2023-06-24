@@ -3,20 +3,20 @@ const { TaskGroup } = require("./TaskGroup");
 const { ProjectJSONable } = require("./ProjectJSONable");
 
 class Project {
-  // id is a number
-  // name is a string
+  // projectId is a number
+  // projectName is a string
   // people is an array of Person objects
   // taskGroups is an array of TaskGroup objects
-  constructor(id, name, people, taskGroups) {
-    this.id = id;
-    this.name = name;
+  constructor(projectId, projectName, people, taskGroups) {
+    this.projectId = projectId;
+    this.projectName = projectName;
     this.people = people;
     this.taskGroups = taskGroups;
   }
   toString() {
     return (
       "Project " +
-      this.name +
+      this.projectName +
       "\nPeople: " +
       this.people +
       "\n Tasks: " +
@@ -34,7 +34,12 @@ class Project {
     for (let i = 0; i < this.taskGroups.length; i++) {
       taskCopy[i] = this.taskGroups[i].toJSONable();
     }
-    return new ProjectJSONable(this.id, this.name, peopleCopy, taskCopy);
+    return new ProjectJSONable(
+      this.projectId,
+      this.projectName,
+      peopleCopy,
+      taskCopy
+    );
   }
   static fromJSONable(proj) {
     const peopleCopy = [];
@@ -45,7 +50,7 @@ class Project {
     for (let i = 0; i < proj.taskGroups.length; i++) {
       taskCopy[i] = TaskGroup.fromJSONable(proj.taskGroups[i]);
     }
-    return new Project(this.id, this.name, peopleCopy, taskCopy);
+    return new Project(proj.projectId, proj.projectName, peopleCopy, taskCopy);
   }
   getTotalWorkload() {
     let out = 0;
@@ -70,7 +75,7 @@ class Project {
     for (let i = 0; i < this.taskGroups.length; i++) {
       taskCopy[i] = this.taskGroups[i].createCopy();
     }
-    return new Project(this.id, this.name, peopleCopy, taskCopy);
+    return new Project(this.projectId, this.projectName, peopleCopy, taskCopy);
   }
 }
 
