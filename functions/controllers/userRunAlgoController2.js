@@ -1,3 +1,4 @@
+// IGNORE THIS FOR NOW
 require("dotenv").config();
 // import statements for models and object TODO
 const { Project } = require("./../algorithm/Project");
@@ -19,7 +20,9 @@ const runUser = async (req, res, next) => {
   try {
     proj = Project.fromJSONable(project);
   } catch (err) {
-    return res.status(401).json({ error: err });
+    return res.status(401).json({
+      error: "unable to process projectJSONable to initialise Project object",
+    });
   }
 
   // a projectJSONable after running algorithm
