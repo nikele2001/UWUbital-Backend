@@ -215,9 +215,23 @@ const POSTProjectUser = async (req, res, next) => {
         );
       });
       const outTGs = taskGroups.map((tgo) => {
+        console.log(tasks);
         const outTasks = tasks
           .filter((x) => x.taskJSON.taskGroupId === tgo.group_id)
-          .map((x) => x.taskJSON);
+          .map((x) => x.taskJSON)
+          .map(
+            (taskJSON) =>
+              new TaskJSONable(
+                taskJSON.taskId,
+                taskJSON.interval,
+                taskJSON.personId,
+                taskJSON.isCompelted,
+                taskJSON.projectId,
+                taskJSON.priority,
+                taskJSON.taskGroupId,
+                taskJSON.isAssigned
+              )
+          );
         console.log(outTasks);
         return new TaskGroupJSONable(
           tgo.group_id,
@@ -286,16 +300,12 @@ const DELETEProjectUser = async (req, res, next) => {
   );
 
   // deleting all tasks in project
-  Promise.all(taskpromisearr)
-    .then(async (result) => {
-      for (let i = 0; i < result.length; i++) {
-        await Task.destroy({ where: { task_id: result[i].task_id } });
-        console.log("delete success");
-      }
-    })
-    .catch(() =>
-      res.status(401).json({ error: "failed to delete tasks within project" })
-    );
+  Promise.all(taskpromisearr).then(async (result) => {
+    for (let i = 0; i < result.length; i++) {
+      await Task.destroy({ where: { task_id: result[i].task_id } });
+      console.log("delete success");
+    }
+  });
 
   // deleting the project itself
   await Project.destroy({ where: { project_id: projectId } })

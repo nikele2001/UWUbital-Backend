@@ -90,6 +90,7 @@ const getMyTasksUser = async (req, res, next) => {
         const tc = JSON.parse(task.task_JSON);
         console.log(taskGroups);
         console.log(tc);
+        taskGroups.map((x) => console.log(x.group_id));
         const tg = taskGroups.filter(
           (x) => Number(x.group_id) === Number(tc.taskGroupId)
         )[0];
