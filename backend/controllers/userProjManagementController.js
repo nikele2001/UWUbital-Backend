@@ -225,9 +225,9 @@ const POSTProjectUser = async (req, res, next) => {
                 taskJSON.taskId,
                 taskJSON.interval,
                 taskJSON.personId,
-                taskJSON.isCompelted,
+                taskJSON.isCompleted,
                 taskJSON.projectId,
-                taskJSON.priority,
+                taskJSON.taskPriority,
                 taskJSON.taskGroupId,
                 taskJSON.isAssigned
               )
